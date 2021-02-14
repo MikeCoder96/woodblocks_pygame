@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "woodblocks_pygame", "woodblocks_pygame\woodblocks_pygame.pyproj", "{4E3B4E46-5BBC-4E64-9FFA-38F8CA49F0DD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4E3B4E46-5BBC-4E64-9FFA-38F8CA49F0DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E3B4E46-5BBC-4E64-9FFA-38F8CA49F0DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6EDEAAD1-9BA7-49B7-82D7-82DAAC946E7F}
+	EndGlobalSection
+EndGlobal
