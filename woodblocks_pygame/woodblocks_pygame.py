@@ -1,4 +1,5 @@
 import sys
+import os
 import pygame
 from random import randint
 from pygame.locals import *
@@ -8,8 +9,8 @@ from languages.asp.asp_input_program import ASPInputProgram
 from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
 
-
 activeAggregate = None
+base_path = os.path.dirname(__file__)
 
 def makeAggregate():
     shape = toPlace.state[randint(0, 18)]
@@ -68,13 +69,13 @@ screen=pygame.display.set_mode((width, height))
 
 # Load images
 block_size = 40
-block = pygame.image.load("resources/assets/quad_1.png")
+block = pygame.image.load(os.path.join(base_path, "resources", "assets", "quad_1.png"))
 block = pygame.transform.scale(block, (block_size, block_size))
-blockSelections = pygame.image.load("resources/assets/quad_1.png")
+blockSelections = pygame.image.load(os.path.join(base_path, "resources", "assets", "quad_1.png"))
 blockSelections = pygame.transform.scale(block, (30, 30))
-blockToPlace = pygame.image.load("resources/assets/quad_2.png")
+blockToPlace = pygame.image.load(os.path.join(base_path, "resources", "assets", "quad_2.png"))
 blockToPlace = pygame.transform.scale(blockToPlace, (block_size, block_size))
-background = pygame.image.load("resources/assets/background.jpg")
+background = pygame.image.load(os.path.join(base_path, "resources", "assets", "background.jpg"))
 background = pygame.transform.scale(background, (width, height))
 
 def createShapeImage(aggregate):
