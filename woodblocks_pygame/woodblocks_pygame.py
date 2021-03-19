@@ -4,10 +4,7 @@ import pygame
 from random import randint
 from pygame.locals import *
 import shapes_template as toPlace
-from languages.asp.asp_mapper import ASPMapper
-from languages.asp.asp_input_program import ASPInputProgram
-from platforms.desktop.desktop_handler import DesktopHandler
-from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
+from AI import *
 
 activeAggregate = None
 base_path = os.path.dirname(__file__)
@@ -51,9 +48,6 @@ def generateShapesToUse():
     shapes.clear()
     for x in range(3):
         shapes.append(makeAggregate())
-
-#INIZIALIZZO LA MERDA DI DLV
-handler = DesktopHandler(DLV2DesktopService("dlv.exe"))
 
 # Initialize the game
 shapes=[]

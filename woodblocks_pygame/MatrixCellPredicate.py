@@ -1,6 +1,6 @@
-from languages import predicate as Predicate
+from languages import predicate
 
-class MatrixCell(Predicate):
+class MatrixCellPredicate(predicate.Predicate):
 	predicate_name: str = "matrixCell"
 
 	def __init__(self, coordX: int, coordY: int) -> None:
