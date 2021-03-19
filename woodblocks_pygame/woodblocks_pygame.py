@@ -1,12 +1,18 @@
 import sys
 import pygame
+from random import randint
 from pygame.locals import *
 import shapes_template as toPlace
-from random import randint
+from languages.asp.asp_mapper import ASPMapper
+from languages.asp.asp_input_program import ASPInputProgram
+from platforms.desktop.desktop_handler import DesktopHandler
+from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
+
 
 activeAggregate = None
 
-def makeAggregate(shape):
+def makeAggregate():
+    shape = toPlace.state[randint(0, 18)]
     blocksAggregate = []
     for i in range(0, len(shape)):
         for j in range(0, len(shape[i])):
@@ -16,6 +22,7 @@ def makeAggregate(shape):
     return blocksAggregate
 
 def canMove(aggregate, x, y) -> bool:
+    # TODO: prevent block to go outside the matrix!
     pass
 
 def aggregateIsPlaceable(aggregate) -> bool:
@@ -33,6 +40,20 @@ def placeAggregateOnMatrix(aggregate):
             y = int(point[1] / 40)
             matrix[x][y] = True
 
+def printShape(aggregate, x, y):
+    for index in range(0, len(aggregate)):
+        screen.blit(blockSelections, [x + aggregate[index][0] / 40 * 30, y + aggregate[index][1] / 40 * 30])
+
+def generateShapesToUse():
+    global shapes
+    # Genero 3 tipi di blocchi da piazzare
+    shapes.clear()
+    for x in range(3):
+        shapes.append(makeAggregate())
+
+#INIZIALIZZO LA MERDA DI DLV
+handler = DesktopHandler(DLV2DesktopService("dlv.exe"))
+
 # Initialize the game
 shapes=[]
 matrix = [
@@ -49,21 +70,35 @@ screen=pygame.display.set_mode((width, height))
 block_size = 40
 block = pygame.image.load("resources/assets/quad_1.png")
 block = pygame.transform.scale(block, (block_size, block_size))
+blockSelections = pygame.image.load("resources/assets/quad_1.png")
+blockSelections = pygame.transform.scale(block, (30, 30))
 blockToPlace = pygame.image.load("resources/assets/quad_2.png")
 blockToPlace = pygame.transform.scale(blockToPlace, (block_size, block_size))
 background = pygame.image.load("resources/assets/background.jpg")
 background = pygame.transform.scale(background, (width, height))
 
+def createShapeImage(aggregate):
+    shapeImage = block
+    for i in range(1, len(aggregate)):
+        screen.blit(block, (aggregate[i][0], aggregate[i][1]))
+    return shapeImage
+
+# First available shape position
+availableShapesY = 95 + (block_size * 10) + block_size * 2.5
+availableShapesMargin = block_size / 2
+availableShapesScale = 0.75
+
 # Score
 points = 0
 font = pygame.font.SysFont("comicsansms", 25)
 player = font.render("DLV", True, (0, 128, 0))
+indexSelected = 0
+canBeSelected = [[width / 8, 540], [width / 8 * 5, 540]]
 
-randShape = toPlace.state[16]
-activeAggregate = makeAggregate(randShape)
-
+generateShapesToUse()
 
 while True:
+    activeAggregate = shapes[indexSelected]
     score = font.render(str(points), True, (0, 128, 0))
     # Clear the screen before drawing it again
     screen.fill(0)
@@ -117,14 +152,18 @@ while True:
 
     screen.blit(player, (95, 15))
     screen.blit(score, (270, 15))
-    for x in shapes:
-        screen.blit(x[0], x[1])
+
+    placeToUse = 0
+    for i in range(3):
+        if (i == indexSelected or shapes[i] == None):
+            continue
+        printShape(shapes[i], canBeSelected[placeToUse][0], canBeSelected[placeToUse][1])
+        placeToUse += 1
+    
     # Update the screen
     pygame.display.flip()
     for event in pygame.event.get():
-        # check if the event is the X button 
         if event.type==pygame.QUIT:
-            # if it is quit the game
             pygame.quit() 
             exit(0) 
 
@@ -137,21 +176,29 @@ while True:
                 keys[2]=True
             elif event.key==pygame.K_d or event.key==pygame.K_RIGHT:
                 keys[3]=True
+            elif event.key==pygame.K_TAB:
+                while True:
+                    indexSelected += 1
+                    if indexSelected == 3:
+                        indexSelected = 0
+                    if shapes[indexSelected] != None:
+                        break
+                        
             elif event.key==pygame.K_SPACE:
                 if (aggregateIsPlaceable(activeAggregate)):
                     placeAggregateOnMatrix(activeAggregate)
-                    activeAggregate = makeAggregate(toPlace.state[randint(0, 18)])
-                    points += len(activeAggregate) #Point update in base alla grandezza dello shape "attualmente 1"
-                    # Generate random shape from shapes template.
-                    # Da fare 3 volte, per ogni blocco da spawanre
-                    randShape = toPlace.state[randint(0, 18)]
-                    blockAggregate = None
-                    initialPosition = [0, 0]
-               # for row in randShape:
-                   # for cell in row:
-                        #if (cell == 1):
-                            
-                #playerpos = [22,97]
+                    points += len(activeAggregate)
+                    shapes[indexSelected] = None
+                    activeAggregate = next((item for item in shapes if item is not None), None)
+                    if activeAggregate == None:
+                        generateShapesToUse()   
+                    while True:
+                        indexSelected += 1
+                        if indexSelected == 3:
+                            indexSelected = 0
+                        if shapes[indexSelected] != None:
+                            break
+
 
         if event.type == pygame.KEYUP:
             if event.key==pygame.K_w or event.key==pygame.K_UP:
