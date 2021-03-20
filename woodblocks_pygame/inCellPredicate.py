@@ -1,7 +1,7 @@
-from languages import predicate
+from languages.predicate import Predicate
 
-class ShapePredicate(predicate.Predicate):
-	predicate_name = "shape"
+class InCellPredicate(Predicate):
+	predicate_name = "inCell"
 
 	def __init__(self, shapeIndex: int = None, coordX: int = None, coordY: int = None) -> None:
 		super().__init__([("index"),("coordX"),("coordY")])

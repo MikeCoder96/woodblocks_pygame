@@ -1,13 +1,16 @@
 import os
+
 from languages.asp.asp_mapper import ASPMapper
 from languages.asp.asp_input_program import ASPInputProgram
 from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
+from base.option_descriptor import OptionDescriptor
 
 from matrixCellPredicate import *
 from shapePredicate import *
 from shapeAggregate import *
 from shapeAggregateBlock import *
+from inCellPredicate import InCellPredicate
 
 # Get the current asolute path.
 dirname = os.path.split(os.path.abspath(__file__))[0]
@@ -20,12 +23,15 @@ class AI:
 		# Register input facts to provide to DLV2.
 		ASPMapper.get_instance().register_class(MatrixCellPredicate)
 		ASPMapper.get_instance().register_class(ShapePredicate)
+		ASPMapper.get_instance().register_class(InCellPredicate)
 
 		# Instantiate the ASP program.
 		self.inputProgram = ASPInputProgram()
 
 		# Define the program's rules.
-		self.rules = "test(X) :- X = 2."
+		logicProgram = open(os.path.join(dirname, "logicProgram.lp"), "r")
+		self.rules = logicProgram.read()
+		logicProgram.close()
 
 		# Add rules to the program
 		self._addRules()
@@ -56,13 +62,20 @@ class AI:
 		self.inputProgram.add_objects_input(matrixPredicates)
 		self.inputProgram.add_objects_input(shapePredicates)
 
-		# Add programr to the handler
+		# Add program to the handler
 		self.handler.add_program(self.inputProgram)
 
 		# Spawn DLV synchronously and get the output
 		output = self.handler.start_sync()
 
-		return output.get_output()
+		shapeAggregates = []
+
+		for answerSet in output.get_answer_sets():
+			for atom in answerSet.get_atoms():
+				if isinstance(atom, InCellPredicate):
+					pass #TODO return a list of shapeAggregates & implement an empty constructor + setters on ShapeAggregate
+
+		return shapeAggregates
 
 	def getOptimalPlacements(self, matrix, shapeAggregates):
 		pass
