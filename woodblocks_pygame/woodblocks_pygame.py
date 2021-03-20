@@ -5,10 +5,13 @@ from random import randint
 from pygame.locals import *
 import shapes_template as toPlace
 from AI import *
+from shapeAggregate import *
 
 activeAggregate = None
 base_path = os.path.dirname(__file__)
 
+# An aggregate is a list of individual (x,y) points representing a shape.
+# Each (x,y) point takes into account block_size.
 def makeAggregate():
     shape = toPlace.state[randint(0, 18)]
     blocksAggregate = []
@@ -91,6 +94,9 @@ indexSelected = 0
 canBeSelected = [[width / 8, 540], [width / 8 * 5, 540]]
 
 generateShapesToUse()
+
+ai = AI()
+print(ai.getOptimalPlacement(matrix, ShapeAggregate(shapes[0], 0, block_size)))
 
 while True:
     activeAggregate = shapes[indexSelected]
