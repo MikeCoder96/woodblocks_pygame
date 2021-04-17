@@ -39,6 +39,7 @@ class AI:
 	def getOptimalPlacement(self, matrix: list, shapeAggregate: ShapeAggregate):
 		"""
 		Returns the optimal placement for a single `ShapeAggregate`, given the input matrix status.
+		Returns `None` if the AS is empty (no solution).
 		"""
 
 		matrixPredicates = []
@@ -68,14 +69,15 @@ class AI:
 		# Spawn DLV synchronously and get the output
 		output = self.handler.start_sync()
 
-		shapeAggregates = []
+		optimalPlacement = None
 
 		for answerSet in output.get_answer_sets():
 			for atom in answerSet.get_atoms():
+				# Filter out inCellPredicates. The answer set contains facts, outCellPredicates etc. We are only interested in inCellPredicates.
 				if isinstance(atom, InCellPredicate):
-					pass #TODO return a list of shapeAggregates & implement an empty constructor + setters on ShapeAggregate
+					optimalPlacement = (atom.get_index(), atom.getCoordX(), atom.getCoordY())	
 
-		return shapeAggregates
+		return optimalPlacement
 
 	def getOptimalPlacements(self, matrix, shapeAggregates):
 		pass
