@@ -3,6 +3,7 @@ from shapeAggregateBlock import *
 class ShapeAggregate:
 	def __init__(self, rawShape: list, availableShapesIndex: int, blockSize: int) -> None:
 		self.shapeAggregateBlocks = []
+		self.blockSize = blockSize
 
 		for rawBlocks in rawShape:
 			self.shapeAggregateBlocks.append(ShapeAggregateBlock(rawBlocks, blockSize))
@@ -14,3 +15,6 @@ class ShapeAggregate:
 
 	def get_index(self):
 		return self.index
+
+	def get_size(self):
+		return self.blockSize
