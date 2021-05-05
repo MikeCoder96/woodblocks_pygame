@@ -1,4 +1,5 @@
 import sys
+import copy
 import os
 import pygame
 from random import randint
@@ -56,9 +57,11 @@ def generateShapesToUse():
     for x in range(3):
         if (shapes[x] == None):
             shapes[x] = makeAggregate()
+            originalShapes[x] = copy.deepcopy(shapes[x])
 
 # Initialize the game
 shapes=[None, None, None]
+originalShapes=[None, None, None]
 matrix = [
     [False for _ in range(0, 10)]
    for _ in range(0,10)
@@ -99,6 +102,8 @@ indexSelected = 0
 canBeSelected = [[width / 8, 540], [width / 8 * 5, 540]]
 
 generateShapesToUse()
+
+originalShapes = copy.deepcopy(shapes)
 
 #ai = AI()
 #print(ai.getOptimalPlacement(matrix, ShapeAggregate(shapes, 0, block_size)))
@@ -163,7 +168,7 @@ while True:
     for i in range(3):
         if (i == indexSelected or shapes[i] == None):
             continue
-        printShape(shapes[i], canBeSelected[placeToUse][0], canBeSelected[placeToUse][1])
+        printShape(originalShapes[i], canBeSelected[placeToUse][0], canBeSelected[placeToUse][1])
         placeToUse += 1
     
     # Update the screen
