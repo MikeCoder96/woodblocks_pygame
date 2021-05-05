@@ -21,10 +21,19 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AI.py" />
+    <Compile Include="inCellPredicate.py" />
+    <Compile Include="MatrixCellPredicate.py" />
+    <Compile Include="shapeAggregate.py" />
+    <Compile Include="shapeAggregateBlock.py" />
+    <Compile Include="shapePredicate.py" />
     <Compile Include="shapes_template.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="woodblocks_pygame.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="logicProgram.lp" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
