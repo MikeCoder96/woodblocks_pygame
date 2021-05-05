@@ -2,12 +2,9 @@
 % matrixCell(X,Y), represents an occupied matrix cell
 % shape(ID,T), represents a shape to place. ID: identifies the shape, T: identifies the shape type (0..19).
 
-% Test facts
-shape(0,14).
-
 % Model
 cell(0..9,0..9).
-shapeType(0..19).
+shapeType(0..18).
 
 % Guess + initial culling on already occupied matrix cells
 inCell(ID,T,X,Y) | outCell(T,X,Y) :- shape(ID,T), cell(X,Y), not matrixCell(X,Y).
@@ -15,6 +12,7 @@ inCell(ID,T,X,Y) | outCell(T,X,Y) :- shape(ID,T), cell(X,Y), not matrixCell(X,Y)
 % X/Y Adjacency
 adjX(ID,X1,Y1,X2,Y2) :- inCell(ID,_,X1,Y1), inCell(ID,_,X2,Y2), X2 = X1 + 1, Y1 = Y2.
 adjY(ID,X1,Y1,X2,Y2) :- inCell(ID,_,X1,Y1), inCell(ID,_,X2,Y2), Y2 = Y1 + 1, X1 = X2.
+% Right X-adjacency. (A cell is considered right-adjacent if it's immediately to the x-right of the target (X2,Y2) cell)
 adjXR(ID,X1,Y1,X2,Y2) :- inCell(ID,_,X1,Y1), inCell(ID,_,X2,Y2), X1 = X2 + 1, Y1 = Y2.
 
 % ----------------------------------
@@ -187,5 +185,90 @@ s14(X1,X2,X3,X4,X5) :- 	shape(ID,14),
 % ----------------------------------
 
 % ----------------------------------
-% Shape type 15:	
+% Shape type 15:	O O O
+%					O
+%					O
+:- shape(ID,15), #count{ X,Y: inCell(ID,15,X,Y) } != 5.
+s15(X1,X2,X3,X4,X5) :- 	shape(ID,15),
+						inCell(ID,15,X1,Y1),
+						inCell(ID,15,X2,Y2),
+						inCell(ID,15,X3,Y3),
+						inCell(ID,15,X4,Y4),
+						inCell(ID,15,X5,Y5),
+						adjX(ID,X1,Y1,X2,Y2),
+						adjX(ID,X2,Y2,X3,Y3),
+						adjY(ID,X1,Y1,X4,Y4),
+						adjY(ID,X4,Y4,X5,Y5).
+:- shape(ID,15), #count{ X1,X2,X3,X4,X5: s15(X1,X2,X3,X4,X5) } != 1.
 % ----------------------------------
+
+% ----------------------------------
+% Shape type 16: 	    O
+%					    O
+%					O O O
+:- shape(ID,16), #count{ X,Y: inCell(ID,16,X,Y) } != 5.
+s16(X1,X2,X3,X4,X5) :- 	shape(ID,16),
+						inCell(ID,16,X1,Y1),
+						inCell(ID,16,X2,Y2),
+						inCell(ID,16,X3,Y3),
+						inCell(ID,16,X4,Y4),
+						inCell(ID,16,X5,Y5),
+						adjY(ID,X1,Y1,X2,Y2),
+						adjY(ID,X2,Y2,X3,Y3),
+						adjXR(ID,X3,Y3,X4,Y4),
+						adjXR(ID,X4,Y4,X5,Y5).
+:- shape(ID,16), #count{ X1,X2,X3,X4,X5: s16(X1,X2,X3,X4,X5) } != 1.
+% ----------------------------------
+
+% ----------------------------------
+% Shape type 17: 	O O O
+%					    O
+%						O
+:- shape(ID,17), #count{ X,Y: inCell(ID,17,X,Y) } != 5.
+s17(X1,X2,X3,X4,X5) :- 	shape(ID,17),
+						inCell(ID,17,X1,Y1),
+						inCell(ID,17,X2,Y2),
+						inCell(ID,17,X3,Y3),
+						inCell(ID,17,X4,Y4),
+						inCell(ID,17,X5,Y5),
+						adjX(ID,X1,Y1,X2,Y2),
+						adjX(ID,X2,Y2,X3,Y3),
+						adjY(ID,X3,Y3,X4,Y4),
+						adjY(ID,X4,Y4,X5,Y5).
+:- shape(ID,17), #count{ X1,X2,X3,X4,X5: s17(X1,X2,X3,X4,X5) } != 1.
+% ----------------------------------
+
+% ----------------------------------
+% Shape type 18: 	O O O
+%					O O O
+%					O O O
+:- shape(ID,18), #count{ X,Y: inCell(ID,18,X,Y) } != 9.
+s18(X1,X2,X3,X4,X5,X6,X7,X8,X9) :- 	shape(ID,18),
+									inCell(ID,18,X1,Y1),
+									inCell(ID,18,X2,Y2),
+									inCell(ID,18,X3,Y3),
+									inCell(ID,18,X4,Y4),
+									inCell(ID,18,X5,X5),
+									inCell(ID,18,X6,Y6),
+									inCell(ID,18,X7,Y7),
+									inCell(ID,18,X8,Y8),
+									inCell(ID,18,X9,Y9),
+									adjX(ID,X1,Y1,X2,Y2),
+									adjX(ID,X2,Y2,X3,Y3),
+									adjX(ID,X4,Y4,X5,Y5),
+									adjX(ID,X5,Y5,X6,Y6),
+									adjX(ID,X7,Y7,X8,Y8),
+									adjX(ID,X8,Y8,X9,Y9),
+									adjY(ID,X1,Y1,X4,Y4),
+									adjY(ID,X4,Y4,X7,Y7),
+									adjY(ID,X2,Y2,X5,Y5),
+									adjY(ID,X5,Y5,X8,Y8),
+									adjY(ID,X3,Y3,X6,Y6),
+									adjY(ID,X6,Y6,X9,Y9).
+:- shape(ID,18), #count{ X1,X2,X3,X4,X5,X6,X7,X8,X9: s18(X1,X2,X3,X4,X5,X6,X7,X8,X9) } != 1.
+% ----------------------------------
+
+% Test facts
+shape(0,5).
+shape(1,10).
+shape(2,18).
