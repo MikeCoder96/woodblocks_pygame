@@ -1,4 +1,5 @@
 import sys
+import copy
 import os
 import pygame
 from random import randint
@@ -22,9 +23,14 @@ def makeAggregate():
 
     return blocksAggregate
 
-def canMove(aggregate, x, y) -> bool:
-    # TODO: prevent block to go outside the matrix!
-    pass
+def canMove(aggregate, cX, cY) -> bool:
+    for x in aggregate:
+        if x[0] + cX < 0 or x[0] + cX > 360:
+            return False
+        if x[1] + cY < 0 or x[1] + cY > 360:
+            return False
+
+    return True
 
 def aggregateIsPlaceable(aggregate) -> bool:
     for point in aggregate:
@@ -48,12 +54,14 @@ def printShape(aggregate, x, y):
 def generateShapesToUse():
     global shapes
     # Genero 3 tipi di blocchi da piazzare
-    shapes.clear()
     for x in range(3):
-        shapes.append(makeAggregate())
+        if (shapes[x] == None):
+            shapes[x] = makeAggregate()
+            originalShapes[x] = copy.deepcopy(shapes[x])
 
 # Initialize the game
-shapes=[]
+shapes=[None, None, None]
+originalShapes=[None, None, None]
 matrix = [
     [False for _ in range(0, 10)]
    for _ in range(0,10)
@@ -95,8 +103,10 @@ canBeSelected = [[width / 8, 540], [width / 8 * 5, 540]]
 
 generateShapesToUse()
 
-ai = AI()
-print(ai.getOptimalPlacement(matrix, ShapeAggregate(shapes[0], 0, block_size)))
+originalShapes = copy.deepcopy(shapes)
+
+#ai = AI()
+#print(ai.getOptimalPlacement(matrix, ShapeAggregate(shapes, 0, block_size)))
 
 while True:
     activeAggregate = shapes[indexSelected]
@@ -158,7 +168,7 @@ while True:
     for i in range(3):
         if (i == indexSelected or shapes[i] == None):
             continue
-        printShape(shapes[i], canBeSelected[placeToUse][0], canBeSelected[placeToUse][1])
+        printShape(originalShapes[i], canBeSelected[placeToUse][0], canBeSelected[placeToUse][1])
         placeToUse += 1
     
     # Update the screen
@@ -191,8 +201,8 @@ while True:
                     points += len(activeAggregate)
                     shapes[indexSelected] = None
                     activeAggregate = next((item for item in shapes if item is not None), None)
-                    if activeAggregate == None:
-                        generateShapesToUse()   
+                    generateShapesToUse()
+                    
                     while True:
                         indexSelected += 1
                         if indexSelected == 3:
@@ -213,21 +223,25 @@ while True:
 
         # W
         if keys[0]:
-            if (activeAggregate != None):
-                for i in range(0, len(activeAggregate)):
-                    activeAggregate[i][1] -= 40
+            if (canMove(activeAggregate, 0 , -40)):
+                if (activeAggregate != None):
+                    for i in range(0, len(activeAggregate)):
+                        activeAggregate[i][1] -= 40
         # A
         if keys[1]:
-            if (activeAggregate != None):
-                for i in range(0, len(activeAggregate)):
-                    activeAggregate[i][0] -= 40   
+            if (canMove(activeAggregate, -40, 0)):
+                if (activeAggregate != None):
+                    for i in range(0, len(activeAggregate)):
+                        activeAggregate[i][0] -= 40   
         # S
         if keys[2]:
-            if (activeAggregate != None):
-                for i in range(0, len(activeAggregate)):
-                    activeAggregate[i][1] += 40
+            if (canMove(activeAggregate, 0, 40)):
+                if (activeAggregate != None):
+                    for i in range(0, len(activeAggregate)):
+                        activeAggregate[i][1] += 40
         # D
         if keys[3]:
-            if (activeAggregate != None):
-                for i in range(0, len(activeAggregate)):
-                    activeAggregate[i][0] += 40
+            if (canMove(activeAggregate, 40, 0)):
+                if (activeAggregate != None):
+                    for i in range(0, len(activeAggregate)):
+                        activeAggregate[i][0] += 40

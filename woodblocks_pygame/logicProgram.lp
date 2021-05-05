@@ -3,39 +3,54 @@
 % matrixCell(0,1).
 
 % % Shapes are provided as elementary cells to translate
-shape(1,0,0).
-shape(1,0,1).
-shape(1,1,0).
+%shape(1,0,0).
+%shape(1,0,1).
+%shape(1,1,0).
+%shape1
+%shape2
+
+% Sample input
+% shape(ID, T). ID = shape's ID, T is the shape type.
+shape(0,1).
 
 % Model.
-cell(1..3, 0..9, 0..9).
+cell(0..9, 0..9).
+shape(0..3).
+shapeType(0..19).
 
-index(1..3).
+% Cull guess search space
+freeCell(X,Y) :- cell(X,Y), not matrixCell(X,Y).
 
-% Translation point used to check for shape consistency.
-tX(1..10).
-tY(1..10).
+% Guess.S
+inCell(T,X,Y) | outCell(T,X,Y) :- freeCell(X,Y), shapeType(T).
 
-blockCount(I,C) :- #count { X,Y: shape(I,X,Y) } = C, index(I).
+% Calcolo delle celle adiacenti nella matrice - adjacentCell
 
-% Guess.
-inCell(I,X,Y) | outCell(I,X,Y) :- cell(I,X,Y).
+% :- inCell(a, A, B), inCell(a, C,D), not adjacent(A,B,C,D).
+% :- inCell(b, A, B), inCell(a,C,D), inCell(a,E,F), adjacent(A,B,C,D).
 
-% Check.
+% Shape constraints
 
-% The number of inCell() has to match exactly the number of blocks that make up a shape.
-:- #count{ X,Y: inCell(I,X,Y) } = C1, blockCount(I,C2), C1 != C2, index(I).
+% O - O block
+:- shape(_,1), inCell(1,X1,Y1), inCell(1,X2,Y2), X2 != X1 + 1, Y1 != Y2.
+:- shape(_,1), #count{ T,X,Y: inCell(T,X,Y) } != 2.
 
-% Placing shapes on non-empty cells is not possible.
-:- inCell(_,X,Y), matrixCell(X,Y).
+%test
+:- inCell(T,_,_), T != 1.
+:- #count{ T,X,Y: inCell(T,X,Y) } < 1.
 
-% Respect the original shapes shape (the individual matrix cells filled have to compose the same shape of the provided one)
-% The chose approach is: find two numbers, tX and tY, such that *all* the generated cells to fill are distant from the original shape provided by tX and tY.
-possibleXTransl(I,A) :- tX(A), #count{ X,Y: inCell(I,X,Y), shape(I,X-A,_) } = C1, blockCount(I,C1), index(I).
-possibleYTransl(I,B) :- tY(B), #count{ X,Y: inCell(I,X,Y), shape(I,_,Y-B) } = C1, blockCount(I,C1), index(I).
-%testTransl(I,A,B) :- tX(A), tY(B), #count{ X,Y: inCell(I,X,Y), shape(I,X-A,Y-B) } = C1, blockCount(I,C1), index(I).
-:- #count{ A: possibleXTransl(I,A) } == 0, index(I). 
-:- #count{ B: possibleYTransl(I,B) } == 0, index(I).
+% % Check.
 
-test(I,X,Y) :- possibleXTransl(I,X), possibleYTransl(I,Y), shape(I,C,D), inCell(I,E,F), index(I), E=C+X, F=D+Y.
-:- #count{ I,X,Y: test(I,X,Y) } != 1.
+% % The number of inCell() has to match exactly the number of blocks that make up a shape.
+% :- #count{ X,Y: inCell(I,X,Y) } = A, #count{ X,Y: shape(I,X,Y) } = B, A != B, index(I).
+
+% % Placing shapes on non-empty cells is not possible.
+% :- inCell(I,X,Y), matrixCell(X,Y).
+
+% % Respect the original shapes shape (the individual matrix cells filled have to compose the same shape of the provided one)
+% % The chose approach is: find two numbers, tX and tY, such that *all* the generated cells to fill are distant from the original shape provided by tX and tY.
+% possibleXTransl(I,A) :- tX(A), #count{ X,Y: inCell(I,X,Y), shape(I,X-A,_) } = N1, #count{ X,Y: shape(I,X,Y) } = N2, N1 = N2, index(I).
+% possibleYTransl(I,B) :- tY(B), #count{ X,Y: inCell(I,X,Y), shape(I,_,Y-B) } = N1, #count{ X,Y: shape(I,X,Y) } = N2, N1 = N2, index(I).
+
+% :- #count{ A: possibleXTransl(I,A) } < 1, index(I). 
+% :- #count{ B: possibleYTransl(I,B) } < 1, index(I).

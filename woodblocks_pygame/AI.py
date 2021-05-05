@@ -6,7 +6,7 @@ from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
 from base.option_descriptor import OptionDescriptor
 
-from matrixCellPredicate import *
+from MatrixCellPredicate import *
 from shapePredicate import *
 from shapeAggregate import *
 from shapeAggregateBlock import *
@@ -75,7 +75,7 @@ class AI:
 			for atom in answerSet.get_atoms():
 				# Filter out inCellPredicates. The answer set contains facts, outCellPredicates etc. We are only interested in inCellPredicates.
 				if isinstance(atom, InCellPredicate):
-					optimalPlacement = (atom.get_index(), atom.getCoordX(), atom.getCoordY())	
+					optimalPlacement = (atom.get_index(), atom.get_coordX(), atom.get_coordY())	
 
 		return optimalPlacement
 
