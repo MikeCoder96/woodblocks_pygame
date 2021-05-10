@@ -26,9 +26,14 @@ def button_on_click(button, event):
  
 def push_button_player(button):
     global MODE
+    global p_name
+    p_name = "Player"
     MODE = 1
 
 def push_button_dlv(button):
+    global MODE
+    global p_name
+    p_name = "DLV"
     MODE = 2
 
 def push_button_hint(button):
@@ -106,15 +111,10 @@ MODE = 0 #1 = player, 2 = AI
 #Score
 points = 0
 font = pygame.font.SysFont("comicsansms", 25)
-if MODE == 2:
-    p_name = "DLV"
-else:
-    p_name = "Player"
-
+p_name = ""
 select1_player = font.render("You want to play", True, (0, 128, 0))
 select2_player = font.render("or", True, (0, 128, 0))
 select3_player = font.render("leave it to DLV?", True, (0, 128, 0))
-player = font.render(p_name, True, (0, 128, 0))
 indexSelected = 0
 canBeSelected = [[width / 8, 540], [width / 8 * 5, 540]]
 # Load images
@@ -173,6 +173,7 @@ originalShapes = copy.deepcopy(shapes)
 #print(ai.getOptimalPlacement(matrix, ShapeAggregate(shapes, 0, block_size)))
 
 while True:
+    player = font.render(p_name, True, (0, 128, 0))
     activeAggregate = shapes[indexSelected]
     score = font.render(str(points), True, (0, 128, 0))
     # Clear the screen before drawing it again
