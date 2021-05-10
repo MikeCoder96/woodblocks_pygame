@@ -132,7 +132,7 @@ pygame.init()
 width, height = 440, 675
 screen=pygame.display.set_mode((width, height))
 font1 = pygame.font.SysFont("fixedsys", 55)
-font2 = pygame.font.SysFont("fixedsys", 28)
+font2 = pygame.font.SysFont("fixedsys", 34)
 font3 = pygame.font.SysFont("fixedsys", 82)
 select1_player = font1.render("You want to play", True, (255, 255, 255))
 select2_player = font1.render("or", True, (255, 255, 255))
@@ -262,8 +262,8 @@ while True:
                     screen.blit(blockNotPlacable, p)
         
         screen.blit(hint_button["image"], hint_button["rect"])
-        screen.blit(player, (87, 15))
-        screen.blit(score, (270, 15))
+        screen.blit(player, (87, 20))
+        screen.blit(score, (270, 20))
 
 
     if MODE == 0:
