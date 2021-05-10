@@ -10,6 +10,36 @@ from shapeAggregate import *
 
 activeAggregate = None
 base_path = os.path.dirname(__file__)
+hint_count = 1
+HINT_PRICE = 50
+
+#BUTTON
+def create_button(button, image, position, callback):
+    button["image"] = image
+    button["rect"] = image.get_rect(topleft=position)
+    button["callback"] = callback
+ 
+def button_on_click(button, event):
+    if event.button == 1:
+        if button["rect"].collidepoint(event.pos):
+            button["callback"](button)
+ 
+def push_button_player(button):
+    global MODE
+    MODE = 1
+
+def push_button_dlv(button):
+    MODE = 2
+
+def push_button_hint(button):
+    global points
+    if (points < (HINT_PRICE * hint_count)):
+        print("no points, no hints")
+    else:
+        points -= (HINT_PRICE * hint_count)
+        #ai.useHint() #TODO: Add hint func in AI
+#############
+
 
 # An aggregate is a list of individual (x,y) points representing a shape.
 # Each (x,y) point takes into account block_size.
@@ -71,17 +101,58 @@ playerpos=[20,95]
 pygame.init()
 width, height = 440, 675
 screen=pygame.display.set_mode((width, height))
+MODE = 0 #1 = player, 2 = AI
 
+#Score
+points = 0
+font = pygame.font.SysFont("comicsansms", 25)
+if MODE == 2:
+    p_name = "DLV"
+else:
+    p_name = "Player"
+
+select1_player = font.render("You want to play", True, (0, 128, 0))
+select2_player = font.render("or", True, (0, 128, 0))
+select3_player = font.render("leave it to DLV?", True, (0, 128, 0))
+player = font.render(p_name, True, (0, 128, 0))
+indexSelected = 0
+canBeSelected = [[width / 8, 540], [width / 8 * 5, 540]]
 # Load images
 block_size = 40
 block = pygame.image.load(os.path.join(base_path, "resources", "assets", "quad_1.png"))
 block = pygame.transform.scale(block, (block_size, block_size))
+
 blockSelections = pygame.image.load(os.path.join(base_path, "resources", "assets", "quad_1.png"))
 blockSelections = pygame.transform.scale(block, (30, 30))
+
 blockToPlace = pygame.image.load(os.path.join(base_path, "resources", "assets", "quad_2.png"))
 blockToPlace = pygame.transform.scale(blockToPlace, (block_size, block_size))
+
+blockNotPlacable = pygame.image.load(os.path.join(base_path, "resources", "assets", "quad_3.png"))
+blockNotPlacable = pygame.transform.scale(blockNotPlacable, (block_size, block_size))
+
 background = pygame.image.load(os.path.join(base_path, "resources", "assets", "background.jpg"))
 background = pygame.transform.scale(background, (width, height))
+
+
+hint_button = {}
+hint_image = pygame.image.load(os.path.join(base_path, "resources", "assets", "hint_btn.png"))
+hint_image = pygame.transform.scale(hint_image, (50, 50))
+
+dlv_button = {}
+dlv_image = pygame.image.load(os.path.join(base_path, "resources", "assets", "dlv_play.png"))
+dlv_image = pygame.transform.scale(dlv_image, (180, 100))
+
+player_button = {}
+player_image = pygame.image.load(os.path.join(base_path, "resources", "assets", "player_play.png"))
+player_image = pygame.transform.scale(player_image, (180, 100))
+
+questionBox = pygame.image.load(os.path.join(base_path, "resources", "assets", "questionbox.png"))
+questionBox = pygame.transform.scale(questionBox, (400, 430))
+
+create_button(dlv_button, dlv_image, ((width / 2) + 15, (height / 2) - 10), push_button_dlv)
+create_button(player_button, player_image, ((width / 2) - 190, (height / 2) - 10), push_button_player)
+create_button(hint_button, hint_image, (370, 10), push_button_hint)
 
 def createShapeImage(aggregate):
     shapeImage = block
@@ -93,13 +164,6 @@ def createShapeImage(aggregate):
 availableShapesY = 95 + (block_size * 10) + block_size * 2.5
 availableShapesMargin = block_size / 2
 availableShapesScale = 0.75
-
-# Score
-points = 0
-font = pygame.font.SysFont("comicsansms", 25)
-player = font.render("DLV", True, (0, 128, 0))
-indexSelected = 0
-canBeSelected = [[width / 8, 540], [width / 8 * 5, 540]]
 
 generateShapesToUse()
 
@@ -155,93 +219,116 @@ while True:
     rowToRemove.clear()
     columnToRemove.clear()
 
-    # Stampa blocchi player
-    if activeAggregate != None:
-        for point in activeAggregate:
-            p = [point[0] + 20, point[1] + 95]
-            screen.blit(blockToPlace, p)
+    if MODE > 0:
+        # Stampa blocchi player
+        if activeAggregate != None:
+            for point in activeAggregate:
+                p = [point[0] + 20, point[1] + 95]
+                if (aggregateIsPlaceable(activeAggregate)):
+                    screen.blit(blockToPlace, p)
+                else:
+                    screen.blit(blockNotPlacable, p)
+        
+        screen.blit(hint_button["image"], hint_button["rect"])
+        screen.blit(player, (87, 15))
+        screen.blit(score, (270, 15))
 
-    screen.blit(player, (95, 15))
-    screen.blit(score, (270, 15))
 
-    placeToUse = 0
-    for i in range(3):
-        if (i == indexSelected or shapes[i] == None):
-            continue
-        printShape(originalShapes[i], canBeSelected[placeToUse][0], canBeSelected[placeToUse][1])
-        placeToUse += 1
+    if MODE == 0:
+        #Show player mode        
+        screen.blit(questionBox, ((width / 2) - 200, (height / 2) - 253))
+        screen.blit(select1_player, ((width / 2) - 100, (height / 2) - 200))
+        screen.blit(select2_player, ((width / 2) - 100, (height / 2) - 165))
+        screen.blit(select3_player, ((width / 2) - 100, (height / 2) - 130))
+        screen.blit(player_button["image"], player_button["rect"])
+        screen.blit(dlv_button["image"], dlv_button["rect"])
+
+    if MODE > 0:
+        placeToUse = 0
+        for i in range(3):
+            if (i == indexSelected or shapes[i] == None):
+                continue
+            printShape(originalShapes[i], canBeSelected[placeToUse][0], canBeSelected[placeToUse][1])
+            placeToUse += 1
     
     # Update the screen
     pygame.display.flip()
     for event in pygame.event.get():
+        
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            button_on_click(hint_button, event)
+            button_on_click(player_button, event)
+            button_on_click(dlv_button, event)
+
         if event.type==pygame.QUIT:
             pygame.quit() 
             exit(0) 
 
-        if event.type == pygame.KEYDOWN:
-            if event.key==pygame.K_w or event.key==pygame.K_UP:
-                keys[0]=True
-            elif event.key==pygame.K_a or event.key==pygame.K_LEFT:
-                keys[1]=True
-            elif event.key==pygame.K_s or event.key==pygame.K_DOWN:
-                keys[2]=True
-            elif event.key==pygame.K_d or event.key==pygame.K_RIGHT:
-                keys[3]=True
-            elif event.key==pygame.K_TAB:
-                while True:
-                    indexSelected += 1
-                    if indexSelected == 3:
-                        indexSelected = 0
-                    if shapes[indexSelected] != None:
-                        break
-                        
-            elif event.key==pygame.K_SPACE:
-                if (aggregateIsPlaceable(activeAggregate)):
-                    placeAggregateOnMatrix(activeAggregate)
-                    points += len(activeAggregate)
-                    shapes[indexSelected] = None
-                    activeAggregate = next((item for item in shapes if item is not None), None)
-                    generateShapesToUse()
-                    
+        if MODE == 1:
+            if event.type == pygame.KEYDOWN:
+                if event.key==pygame.K_w or event.key==pygame.K_UP:
+                    keys[0]=True
+                elif event.key==pygame.K_a or event.key==pygame.K_LEFT:
+                    keys[1]=True
+                elif event.key==pygame.K_s or event.key==pygame.K_DOWN:
+                    keys[2]=True
+                elif event.key==pygame.K_d or event.key==pygame.K_RIGHT:
+                    keys[3]=True
+                elif event.key==pygame.K_TAB:
                     while True:
                         indexSelected += 1
                         if indexSelected == 3:
                             indexSelected = 0
                         if shapes[indexSelected] != None:
                             break
+                        
+                elif event.key==pygame.K_SPACE:
+                    if (aggregateIsPlaceable(activeAggregate)):
+                        placeAggregateOnMatrix(activeAggregate)
+                        points += len(activeAggregate)
+                        shapes[indexSelected] = None
+                        activeAggregate = next((item for item in shapes if item is not None), None)
+                        generateShapesToUse()
+                    
+                        while True:
+                            indexSelected += 1
+                            if indexSelected == 3:
+                                indexSelected = 0
+                            if shapes[indexSelected] != None:
+                                break
 
 
-        if event.type == pygame.KEYUP:
-            if event.key==pygame.K_w or event.key==pygame.K_UP:
-                keys[0]=False
-            elif event.key==pygame.K_a or event.key==pygame.K_LEFT:
-                keys[1]=False
-            elif event.key==pygame.K_s or event.key==pygame.K_DOWN:
-                keys[2]=False
-            elif event.key==pygame.K_d or event.key==pygame.K_RIGHT:
-                keys[3]=False
+            if event.type == pygame.KEYUP:
+                if event.key==pygame.K_w or event.key==pygame.K_UP:
+                    keys[0]=False
+                elif event.key==pygame.K_a or event.key==pygame.K_LEFT:
+                    keys[1]=False
+                elif event.key==pygame.K_s or event.key==pygame.K_DOWN:
+                    keys[2]=False
+                elif event.key==pygame.K_d or event.key==pygame.K_RIGHT:
+                    keys[3]=False
 
-        # W
-        if keys[0]:
-            if (canMove(activeAggregate, 0 , -40)):
-                if (activeAggregate != None):
-                    for i in range(0, len(activeAggregate)):
-                        activeAggregate[i][1] -= 40
-        # A
-        if keys[1]:
-            if (canMove(activeAggregate, -40, 0)):
-                if (activeAggregate != None):
-                    for i in range(0, len(activeAggregate)):
-                        activeAggregate[i][0] -= 40   
-        # S
-        if keys[2]:
-            if (canMove(activeAggregate, 0, 40)):
-                if (activeAggregate != None):
-                    for i in range(0, len(activeAggregate)):
-                        activeAggregate[i][1] += 40
-        # D
-        if keys[3]:
-            if (canMove(activeAggregate, 40, 0)):
-                if (activeAggregate != None):
-                    for i in range(0, len(activeAggregate)):
-                        activeAggregate[i][0] += 40
+            # W
+            if keys[0]:
+                if (canMove(activeAggregate, 0 , -40)):
+                    if (activeAggregate != None):
+                        for i in range(0, len(activeAggregate)):
+                            activeAggregate[i][1] -= 40
+            # A
+            if keys[1]:
+                if (canMove(activeAggregate, -40, 0)):
+                    if (activeAggregate != None):
+                        for i in range(0, len(activeAggregate)):
+                            activeAggregate[i][0] -= 40   
+            # S
+            if keys[2]:
+                if (canMove(activeAggregate, 0, 40)):
+                    if (activeAggregate != None):
+                        for i in range(0, len(activeAggregate)):
+                            activeAggregate[i][1] += 40
+            # D
+            if keys[3]:
+                if (canMove(activeAggregate, 40, 0)):
+                    if (activeAggregate != None):
+                        for i in range(0, len(activeAggregate)):
+                            activeAggregate[i][0] += 40
