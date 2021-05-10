@@ -12,6 +12,7 @@ activeAggregate = None
 base_path = os.path.dirname(__file__)
 hint_count = 1
 HINT_PRICE = 50
+NO_MOVES_LEFT = False
 
 #BUTTON
 def create_button(button, image, position, callback):
@@ -35,6 +36,12 @@ def push_button_dlv(button):
     global p_name
     p_name = "DLV"
     MODE = 2
+    
+def push_button_retry(button):
+    global MODE
+    global NO_MOVES_LEFT
+    NO_MOVES_LEFT = False
+    MODE = 0
 
 def push_button_hint(button):
     global points
@@ -94,27 +101,43 @@ def generateShapesToUse():
             shapes[x] = makeAggregate()
             originalShapes[x] = copy.deepcopy(shapes[x])
 
-# Initialize the game
+def resetGame():
+    # Initialize the game
+    global shapes, originalShapes, matrix, playerpos, MODE, points, p_name
+    shapes=[None, None, None]
+    originalShapes=[None, None, None]
+    matrix = [
+        [False for _ in range(0, 10)]
+       for _ in range(0,10)
+       ]
+    playerpos=[20,95]
+    points = 0
+    p_name = ""
+    generateShapesToUse()
+
+
 shapes=[None, None, None]
 originalShapes=[None, None, None]
 matrix = [
     [False for _ in range(0, 10)]
-   for _ in range(0,10)
-   ]
+    for _ in range(0,10)
+    ]
 keys = [False, False, False, False]
 playerpos=[20,95]
+MODE = 0 #1 = player, 2 = AI
+points = 0
+p_name = ""
+
 pygame.init()
 width, height = 440, 675
 screen=pygame.display.set_mode((width, height))
-MODE = 0 #1 = player, 2 = AI
-
-#Score
-points = 0
-font = pygame.font.SysFont("comicsansms", 25)
-p_name = ""
-select1_player = font.render("You want to play", True, (0, 128, 0))
-select2_player = font.render("or", True, (0, 128, 0))
-select3_player = font.render("leave it to DLV?", True, (0, 128, 0))
+font1 = pygame.font.SysFont("fixedsys", 55)
+font2 = pygame.font.SysFont("fixedsys", 28)
+font3 = pygame.font.SysFont("fixedsys", 82)
+select1_player = font1.render("You want to play", True, (255, 255, 255))
+select2_player = font1.render("or", True, (255, 255, 255))
+select3_player = font1.render("leave it to DLV?", True, (255, 255, 255))
+retry_text = font3.render("Retry??", True, (255, 255, 255))
 indexSelected = 0
 canBeSelected = [[width / 8, 540], [width / 8 * 5, 540]]
 # Load images
@@ -147,12 +170,17 @@ player_button = {}
 player_image = pygame.image.load(os.path.join(base_path, "resources", "assets", "player_play.png"))
 player_image = pygame.transform.scale(player_image, (180, 100))
 
+retry_button = {}
+retry_image = pygame.image.load(os.path.join(base_path, "resources", "assets", "retry_btn.png"))
+retry_image = pygame.transform.scale(retry_image, (180, 100))
+
 questionBox = pygame.image.load(os.path.join(base_path, "resources", "assets", "questionbox.png"))
 questionBox = pygame.transform.scale(questionBox, (400, 430))
 
 create_button(dlv_button, dlv_image, ((width / 2) + 15, (height / 2) - 10), push_button_dlv)
 create_button(player_button, player_image, ((width / 2) - 190, (height / 2) - 10), push_button_player)
 create_button(hint_button, hint_image, (370, 10), push_button_hint)
+create_button(retry_button, retry_image, ((width / 2) - 90, (height / 2) - 10), push_button_retry)
 
 def createShapeImage(aggregate):
     shapeImage = block
@@ -169,13 +197,16 @@ generateShapesToUse()
 
 originalShapes = copy.deepcopy(shapes)
 
+#INITIALIZE AI
 #ai = AI()
 #print(ai.getOptimalPlacement(matrix, ShapeAggregate(shapes, 0, block_size)))
 
 while True:
-    player = font.render(p_name, True, (0, 128, 0))
+    if NO_MOVES_LEFT:
+        MODE = 0
+    player = font2.render(p_name, True, (0, 128, 0))
     activeAggregate = shapes[indexSelected]
-    score = font.render(str(points), True, (0, 128, 0))
+    score = font2.render(str(points), True, (0, 128, 0))
     # Clear the screen before drawing it again
     screen.fill(0)
     # Draw the screen elements
@@ -238,11 +269,16 @@ while True:
     if MODE == 0:
         #Show player mode        
         screen.blit(questionBox, ((width / 2) - 200, (height / 2) - 253))
-        screen.blit(select1_player, ((width / 2) - 100, (height / 2) - 200))
-        screen.blit(select2_player, ((width / 2) - 100, (height / 2) - 165))
-        screen.blit(select3_player, ((width / 2) - 100, (height / 2) - 130))
-        screen.blit(player_button["image"], player_button["rect"])
-        screen.blit(dlv_button["image"], dlv_button["rect"])
+        if not NO_MOVES_LEFT:
+            screen.blit(select1_player, ((width / 2) - 150, (height / 2) - 180))
+            screen.blit(select2_player, ((width / 2) - 150, (height / 2) - 135))
+            screen.blit(select3_player, ((width / 2) - 150, (height / 2) - 90))
+            screen.blit(player_button["image"], player_button["rect"])
+            screen.blit(dlv_button["image"], dlv_button["rect"])
+        else:
+            resetGame()
+            screen.blit(retry_text, ((width / 2) - 90, (height / 2) - 130))
+            screen.blit(retry_button["image"], retry_button["rect"])
 
     if MODE > 0:
         placeToUse = 0
@@ -257,9 +293,12 @@ while True:
     for event in pygame.event.get():
         
         if event.type == pygame.MOUSEBUTTONDOWN:
-            button_on_click(hint_button, event)
-            button_on_click(player_button, event)
-            button_on_click(dlv_button, event)
+            if NO_MOVES_LEFT:
+                button_on_click(retry_button, event)
+            else:
+                button_on_click(hint_button, event)
+                button_on_click(player_button, event)
+                button_on_click(dlv_button, event)
 
         if event.type==pygame.QUIT:
             pygame.quit() 
@@ -333,3 +372,10 @@ while True:
                     if (activeAggregate != None):
                         for i in range(0, len(activeAggregate)):
                             activeAggregate[i][0] += 40
+
+        #if ai.endGame():
+        #    global MODE
+        #    global NO_MOVES_LEFT
+        #    NO_MOVES_LEFT = True
+        #    MODE = 0
+            
