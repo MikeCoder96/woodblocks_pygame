@@ -268,9 +268,39 @@ s18(X1,X2,X3,X4,X5,X6,X7,X8,X9) :- 	shape(ID,18),
 :- shape(ID,18), #count{ X1,X2,X3,X4,X5,X6,X7,X8,X9: s18(X1,X2,X3,X4,X5,X6,X7,X8,X9) } != 1.
 % ----------------------------------
 
+% ----------------------------------
+% Input shapes cannot overlap.
+:- inCell(ID1,T1,X1,Y1), inCell(ID2,T2,X2,Y2), ID1 != ID2, T1 != T2, X1 = X2, Y1 = Y2.
+% ----------------------------------
 
+% ----------------------------------
+% Prefer placing each shape on corners
+:~ shape(ID,T), #sum{ Xb: inCell(ID,T,X,Y), &abs(X-5;Xa), Xb = 10-Xa } = C. [C @ 1, ID,T]
+:~ shape(ID,T), #sum{ Yb: inCell(ID,T,X,Y), &abs(Y-5;Ya), Yb = 10-Ya } = C. [C @ 1, ID,T]
+% ----------------------------------
+
+% ----------------------------------
+% The objective is clearing a line!
+row(0..9).
+column(0..9).
+completedRow(Y) 	:- 	row(Y), 
+						#count{ X: inCell(_,_,X,Y) } = CELLS, 
+						#count{ X: matrixCell(X,Y) } = MATRIX_CELLS, 
+						CELLS + MATRIX_CELLS = 10. % "Y" because it's constant with respect to a row.
+completedColumn(X) 	:- 	column(X), 
+						#count{ Y: inCell(_,_,X,Y) } = CELLS,
+						#count{ Y: matrixCell(X,Y) } = MATRIX_CELLS,
+						CELLS + MATRIX_CELLS = 10.
+
+% Pay at the highest level for the number of non completed rows & columns.
+:~ #count{ Y: completedRow(Y) } = N, M = 20 - N. [M @ 2, M]
+% ----------------------------------
 
 % Test facts
-shape(0,5).
-shape(1,10).
-shape(2,18).
+% Input shapes
+%shape(0,2).
+%shape(1,11).
+%shape(2,10).
+
+% Input matrix
+%matrixCell(0..7,4..5).
