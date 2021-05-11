@@ -3,9 +3,10 @@ from languages.predicate import Predicate
 class InCellPredicate(Predicate):
 	predicate_name = "inCell"
 
-	def __init__(self, shapeIndex: int = None, coordX: int = None, coordY: int = None) -> None:
-		super().__init__([("index"),("coordX"),("coordY")])
+	def __init__(self, shapeIndex: int = None, shapeType: int = None, coordX: int = None, coordY: int = None) -> None:
+		super().__init__([("index"),("type")("coordX"),("coordY")])
 		self.index = shapeIndex
+		self.type = shapeType
 		self.coordX = coordX
 		self.coordY = coordY
 
@@ -18,8 +19,14 @@ class InCellPredicate(Predicate):
 	def get_coordY(self) -> int:
 		return self.coordY
 
+	def get_type(self) -> int:
+		return self.type
+
 	def set_index(self, index: int):
 		self.index = index
+	
+	def set_type(self, type: int):
+		self.type = index
 
 	def set_coordX(self, coordX: int):
 		self.coordX = coordX

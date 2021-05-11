@@ -6,7 +6,7 @@ from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
 from base.option_descriptor import OptionDescriptor
 
-from matrixCellPredicate import *
+from MatrixCellPredicate import *
 from shapePredicate import *
 from shapeAggregate import *
 from shapeAggregateBlock import *
@@ -36,7 +36,7 @@ class AI:
 		# Add rules to the program
 		self._addRules()
 
-	def getOptimalPlacement(self, matrix: list, shapeIndex: int, shapeType: int):
+	def getOptimalPlacement(self, matrix: list, shapes: list):
 		"""
 		Returns the optimal placement for a single `ShapeAggregate`, given the input matrix status.
 		Returns `None` if the AS is empty (no solution).
@@ -49,7 +49,9 @@ class AI:
 				if (matrix[i][j]):
 					matrixPredicates.append(MatrixCellPredicate(i, j))
 
-		shapePredicate = ShapePredicate(shapeIndex, shapeType)
+		shapePredicate = []
+		for x in range(len(shapes)):
+			shapePredicate.append(ShapePredicate(x, shapes[x][0]))
 
 		# Add predicates to the program
 		self.inputProgram.add_objects_input(matrixPredicates)

@@ -4,7 +4,7 @@ class ShapePredicate(predicate.Predicate):
 	predicate_name = "shape"
 
 	def __init__(self, shapeIndex: int = None, shapeType: int = None) -> None:
-		super().__init__([("index"),("coordX"),("coordY")])
+		super().__init__([("index"),("type")])
 		self.index = shapeIndex
 		self.type = shapeType
 

@@ -14,6 +14,9 @@ hint_count = 1
 HINT_PRICE = 50
 NO_MOVES_LEFT = False
 
+#INITIALIZE AI
+AI_Solver = AI()
+
 #BUTTON
 def create_button(button, image, position, callback):
 	button["image"] = image
@@ -55,8 +58,11 @@ def push_button_hint(button):
 
 # An aggregate is a list of individual (x,y) points representing a shape.
 # Each (x,y) point takes into account block_size.
-def makeAggregate():
-	shape = toPlace.state[randint(0, 18)]
+def makeAggregate(idx):
+	global shapes
+	generated_index = randint(0, 18)
+	shape = toPlace.state[generated_index]
+	shapes[idx][0] = generated_index
 	blocksAggregate = []
 	for i in range(0, len(shape)):
 		for j in range(0, len(shape[i])):
@@ -83,22 +89,23 @@ def aggregateIsPlaceable(aggregate) -> bool:
 	return True
 
 def placeAggregateOnMatrix(aggregate):
-	if (aggregateIsPlaceable(aggregate)):
-		for point in aggregate:
+	if (aggregateIsPlaceable(aggregate[1])):
+		for point in aggregate[1]:
 			x = int(point[0] / 40)
 			y = int(point[1] / 40)
 			matrix[x][y] = True
 
 def printShape(aggregate, x, y):
-	for index in range(0, len(aggregate)):
-		screen.blit(blockSelections, [x + aggregate[index][0] / 40 * 30, y + aggregate[index][1] / 40 * 30])
+	for index in range(0, len(aggregate[1])):
+		screen.blit(blockSelections, [x + aggregate[1][index][0] / 40 * 30, y + aggregate[1][index][1] / 40 * 30])
 
 def generateShapesToUse():
 	global shapes
 	# Genero 3 tipi di blocchi da piazzare
 	for x in range(3):
-		if (shapes[x] == None):
-			shapes[x] = makeAggregate()
+		if (shapes[x][0] == None):
+			shapes[x][1] = makeAggregate(x)
+
 			originalShapes[x] = copy.deepcopy(shapes[x])
 
 def resetGame():
@@ -116,11 +123,12 @@ def resetGame():
 	generateShapesToUse()
 
 def testDLV():
-	#ai = AI()
+	global matrix, shapes
+	print(AI_Solver.getOptimalPlacement(matrix, shapes))
 	pass
 
-shapes=[None, None, None]
-originalShapes=[None, None, None]
+shapes=[[None, None], [None, None], [None, None]]
+originalShapes=[[None, None], [None, None], [None, None]]
 matrix = [
 	[False for _ in range(0, 10)]
 	for _ in range(0,10)
@@ -200,8 +208,6 @@ generateShapesToUse()
 
 originalShapes = copy.deepcopy(shapes)
 
-#INITIALIZE AI
-#ai = AI()
 #print(ai.getOptimalPlacement(matrix, ShapeAggregate(shapes, 0, block_size)))
 
 while True:
@@ -256,10 +262,10 @@ while True:
 
 	if MODE > 0:
 		# Stampa blocchi player
-		if activeAggregate != None:
-			for point in activeAggregate:
+		if activeAggregate[1] != None:
+			for point in activeAggregate[1]:
 				p = [point[0] + 20, point[1] + 95]
-				if (aggregateIsPlaceable(activeAggregate)):
+				if (aggregateIsPlaceable(activeAggregate[1])):
 					screen.blit(blockToPlace, p)
 				else:
 					screen.blit(blockNotPlacable, p)
@@ -324,14 +330,14 @@ while True:
 						indexSelected += 1
 						if indexSelected == 3:
 							indexSelected = 0
-						if shapes[indexSelected] != None:
+						if shapes[indexSelected][1] != None:
 							break
 						
 				elif event.key==pygame.K_SPACE:
-					if (aggregateIsPlaceable(activeAggregate)):
+					if (aggregateIsPlaceable(activeAggregate[1])):
 						placeAggregateOnMatrix(activeAggregate)
 						points += len(activeAggregate)
-						shapes[indexSelected] = None
+						shapes[indexSelected] = [None, None]
 						activeAggregate = next((item for item in shapes if item is not None), None)
 						generateShapesToUse()
 					
@@ -339,7 +345,7 @@ while True:
 							indexSelected += 1
 							if indexSelected == 3:
 								indexSelected = 0
-							if shapes[indexSelected] != None:
+							if shapes[indexSelected][1] != None:
 								break
 
 
@@ -355,28 +361,28 @@ while True:
 
 			# W
 			if keys[0]:
-				if (canMove(activeAggregate, 0 , -40)):
-					if (activeAggregate != None):
-						for i in range(0, len(activeAggregate)):
-							activeAggregate[i][1] -= 40
+				if (canMove(activeAggregate[1], 0 , -40)):
+					if (activeAggregate[1] != None):
+						for i in range(0, len(activeAggregate[1])):
+							activeAggregate[1][i][1] -= 40
 			# A
 			if keys[1]:
-				if (canMove(activeAggregate, -40, 0)):
-					if (activeAggregate != None):
-						for i in range(0, len(activeAggregate)):
-							activeAggregate[i][0] -= 40   
+				if (canMove(activeAggregate[1], -40, 0)):
+					if (activeAggregate[1] != None):
+						for i in range(0, len(activeAggregate[1])):
+							activeAggregate[1][i][0] -= 40   
 			# S
 			if keys[2]:
-				if (canMove(activeAggregate, 0, 40)):
-					if (activeAggregate != None):
-						for i in range(0, len(activeAggregate)):
-							activeAggregate[i][1] += 40
+				if (canMove(activeAggregate[1], 0, 40)):
+					if (activeAggregate[1] != None):
+						for i in range(0, len(activeAggregate[1])):
+							activeAggregate[1][i][1] += 40
 			# D
 			if keys[3]:
-				if (canMove(activeAggregate, 40, 0)):
-					if (activeAggregate != None):
-						for i in range(0, len(activeAggregate)):
-							activeAggregate[i][0] += 40
+				if (canMove(activeAggregate[1], 40, 0)):
+					if (activeAggregate[1] != None):
+						for i in range(0, len(activeAggregate[1])):
+							activeAggregate[1][i][0] += 40
 
 		#if ai.endGame():
 		#    global MODE
