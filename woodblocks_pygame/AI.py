@@ -2,11 +2,12 @@ import os
 
 from languages.asp.asp_mapper import ASPMapper
 from languages.asp.asp_input_program import ASPInputProgram
+import matrixCellPredicate
 from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
 from base.option_descriptor import OptionDescriptor
 
-from MatrixCellPredicate import *
+from matrixCellPredicate import *
 from shapePredicate import *
 from shapeAggregate import *
 from shapeAggregateBlock import *
@@ -65,7 +66,9 @@ class AI:
 
 		optimalPlacement = None
 
-		for answerSet in output.get_answer_sets():
+		print(output.get_answer_sets_string())
+
+		for answerSet in output.get_optimal_answer_sets():
 			print(answerSet)
 			for atom in answerSet.get_atoms():
 				# Filter out inCellPredicates. The answer set contains facts, outCellPredicates etc. We are only interested in inCellPredicates.

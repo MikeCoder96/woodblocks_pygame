@@ -4,7 +4,7 @@ class InCellPredicate(Predicate):
 	predicate_name = "inCell"
 
 	def __init__(self, shapeIndex: int = None, shapeType: int = None, coordX: int = None, coordY: int = None) -> None:
-		super().__init__([("index"),("type")("coordX"),("coordY")])
+		super().__init__([("index"),("type"),("coordX"),("coordY")])
 		self.index = shapeIndex
 		self.type = shapeType
 		self.coordX = coordX
