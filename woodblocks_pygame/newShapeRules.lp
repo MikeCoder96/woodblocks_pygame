@@ -268,6 +268,8 @@ s18(X1,X2,X3,X4,X5,X6,X7,X8,X9) :- 	shape(ID,18),
 :- shape(ID,18), #count{ X1,X2,X3,X4,X5,X6,X7,X8,X9: s18(X1,X2,X3,X4,X5,X6,X7,X8,X9) } != 1.
 % ----------------------------------
 
+
+
 % Test facts
 shape(0,5).
 shape(1,10).
