@@ -3,26 +3,19 @@ from languages import predicate
 class ShapePredicate(predicate.Predicate):
 	predicate_name = "shape"
 
-	def __init__(self, shapeIndex: int = None, coordX: int = None, coordY: int = None) -> None:
+	def __init__(self, shapeIndex: int = None, shapeType: int = None) -> None:
 		super().__init__([("index"),("coordX"),("coordY")])
 		self.index = shapeIndex
-		self.coordX = coordX
-		self.coordY = coordY
+		self.type = shapeType
 
 	def get_index(self) -> int:
 		return self.index
 
-	def get_coordX(self) -> int:
-		return self.coordX
-
-	def get_coordY(self) -> int:
-		return self.coordY
+	def get_type(self) -> int:
+		return self.type
 
 	def set_index(self, index: int):
 		self.index = index
 
-	def set_coordX(self, coordX: int):
-		self.coordX = coordX
-
-	def set_coordY(self, coordY: int):
-		self.coordY = coordY
+	def set_type(self, type: int):
+		self.type = type

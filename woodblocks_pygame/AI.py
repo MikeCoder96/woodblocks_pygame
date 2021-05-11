@@ -6,7 +6,7 @@ from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
 from base.option_descriptor import OptionDescriptor
 
-from MatrixCellPredicate import *
+from matrixCellPredicate import *
 from shapePredicate import *
 from shapeAggregate import *
 from shapeAggregateBlock import *
@@ -29,14 +29,14 @@ class AI:
 		self.inputProgram = ASPInputProgram()
 
 		# Define the program's rules.
-		logicProgram = open(os.path.join(dirname, "logicProgram.lp"), "r")
+		logicProgram = open(os.path.join(dirname, "newShapeRules.lp"), "r")
 		self.rules = logicProgram.read()
 		logicProgram.close()
 
 		# Add rules to the program
 		self._addRules()
 
-	def getOptimalPlacement(self, matrix: list, shapeAggregate: ShapeAggregate):
+	def getOptimalPlacement(self, matrix: list, shapeIndex: int, shapeType: int):
 		"""
 		Returns the optimal placement for a single `ShapeAggregate`, given the input matrix status.
 		Returns `None` if the AS is empty (no solution).
@@ -49,19 +49,11 @@ class AI:
 				if (matrix[i][j]):
 					matrixPredicates.append(MatrixCellPredicate(i, j))
 
-		# Create the Shape predicates
-		shapePredicates = []
-		
-		for shapeAggregateBlock in shapeAggregate.get_blocks():
-			shapePredicates.append(ShapePredicate(
-				shapeAggregate.get_index(), 
-				shapeAggregateBlock.get_componentX(), 
-				shapeAggregateBlock.get_componentY()
-			))
+		shapePredicate = ShapePredicate(shapeIndex, shapeType)
 
 		# Add predicates to the program
 		self.inputProgram.add_objects_input(matrixPredicates)
-		self.inputProgram.add_objects_input(shapePredicates)
+		self.inputProgram.add_objects_input(shapePredicate)
 
 		# Add program to the handler
 		self.handler.add_program(self.inputProgram)
@@ -72,6 +64,7 @@ class AI:
 		optimalPlacement = None
 
 		for answerSet in output.get_answer_sets():
+			print(answerSet)
 			for atom in answerSet.get_atoms():
 				# Filter out inCellPredicates. The answer set contains facts, outCellPredicates etc. We are only interested in inCellPredicates.
 				if isinstance(atom, InCellPredicate):
