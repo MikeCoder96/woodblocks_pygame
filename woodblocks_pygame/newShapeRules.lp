@@ -298,8 +298,3 @@ completedColumn(X) 	:- 	column(X),
 % Pay at a higher level for the number of non completed rows & columns.
 :~ #count{ Y: completedRow(Y) } = N, M = 20 - N. [M @ 2, M]
 % ----------------------------------
-
-% ----------------------------------
-% Pay for the number of empty cells around the shape placement
-:~ shape(ID,T), #count{ X,Y: inCell(ID,T,X,Y), X>=X-1, X<=X+1, Y>=Y-1, Y<=Y+1 } = N.
-% ----------------------------------
