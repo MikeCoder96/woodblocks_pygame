@@ -122,10 +122,15 @@ def resetGame():
 	p_name = ""
 	generateShapesToUse()
 
+
 def testDLV():
-	global matrix, shapes
-	print(AI_Solver.getOptimalPlacement(matrix, shapes))
-	pass
+	global matrix, shapes, activeAggregate
+	var = AI_Solver.getOptimalPlacement(matrix, shapes)
+	if var != []:
+		for x in var:
+			matrix[int(x[1])][int(x[2])] = True
+		shapes=[[None, None], [None, None], [None, None]]
+		generateShapesToUse()
 
 shapes=[[None, None], [None, None], [None, None]]
 originalShapes=[[None, None], [None, None], [None, None]]

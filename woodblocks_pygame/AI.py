@@ -6,7 +6,7 @@ from languages.asp.asp_input_program import ASPInputProgram
 from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
 
-from matrixCellPredicate import *
+from MatrixCellPredicate import *
 from shapePredicate import *
 from shapeAggregate import *
 from shapeAggregateBlock import *
