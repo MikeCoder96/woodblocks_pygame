@@ -19,3 +19,6 @@ class ShapePredicate(predicate.Predicate):
 
 	def set_type(self, type: int):
 		self.type = type
+
+	def __str__(self) -> str:
+		return "(" + str(self.index) + ", " + str(self.type) + ")"

@@ -25,8 +25,8 @@ class InCellPredicate(Predicate):
 	def set_index(self, index: int):
 		self.index = index
 	
-	def set_type(self, type: int):
-		self.type = index
+	def set_type(self, _type: int):
+		self.type = _type
 
 	def set_coordX(self, coordX: int):
 		self.coordX = coordX

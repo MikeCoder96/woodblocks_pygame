@@ -301,6 +301,3 @@ completedColumn(X) 	:- 	column(X),
 %shape(0,2).
 %shape(1,11).
 %shape(2,10).
-
-% Input matrix
-%matrixCell(0..7,4..5).

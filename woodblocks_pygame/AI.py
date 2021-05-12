@@ -1,4 +1,7 @@
 import os
+import re
+
+from base.input_program import InputProgram
 
 from languages.asp.asp_mapper import ASPMapper
 from languages.asp.asp_input_program import ASPInputProgram
@@ -26,6 +29,7 @@ class AI:
 		ASPMapper.get_instance().register_class(ShapePredicate)
 		ASPMapper.get_instance().register_class(InCellPredicate)
 
+	def instantiateProgram(self) -> None:
 		# Instantiate the ASP program.
 		self.inputProgram = ASPInputProgram()
 
@@ -43,8 +47,10 @@ class AI:
 		Returns `None` if the AS is empty (no solution).
 		"""
 
-		matrixPredicates = []
+		# Instantiate program.
+		self.instantiateProgram()
 
+		matrixPredicates = []
 		for i in range(len(matrix)):
 			for j in range(len(matrix)):
 				if (matrix[i][j]):
@@ -53,6 +59,9 @@ class AI:
 		shapePredicate = []
 		for x in range(len(shapes)):
 			shapePredicate.append(ShapePredicate(x, shapes[x][0]))
+
+		self.printArray(matrixPredicates)
+		self.printArray(shapePredicate)
 
 		# Add predicates to the program
 		self.inputProgram.add_objects_input(matrixPredicates)
@@ -64,16 +73,14 @@ class AI:
 		# Spawn DLV synchronously and get the output
 		output = self.handler.start_sync()
 
-		optimalPlacement = None
-
-		print(output.get_answer_sets_string())
+		optimalPlacement = []
 
 		for answerSet in output.get_optimal_answer_sets():
-			print(answerSet)
+			print(answerSet.get_weights())
 			for atom in answerSet.get_atoms():
 				# Filter out inCellPredicates. The answer set contains facts, outCellPredicates etc. We are only interested in inCellPredicates.
 				if isinstance(atom, InCellPredicate):
-					optimalPlacement = (atom.get_index(), atom.get_coordX(), atom.get_coordY())	
+					optimalPlacement.append((atom.get_index(), atom.get_coordX(), atom.get_coordY()))
 
 		return optimalPlacement
 
@@ -81,6 +88,7 @@ class AI:
 		pass
 
 	def _addRules(self) -> None:
+		self.rules = re.sub(r'\s?\n\t+', '', self.rules)
 		self.inputProgram.add_program(self.rules)
 
 	def _reset(self) -> None:
@@ -91,3 +99,7 @@ class AI:
 
 		# Add rules back
 		self._addRules()
+
+	def printArray(self, arr: list) -> None:
+		for el in arr:
+			print(el)
