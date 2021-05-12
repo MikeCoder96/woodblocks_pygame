@@ -298,6 +298,7 @@ completedColumn(X) 	:- 	column(X),
 
 % Test facts
 % Input shapes
-%shape(0,2).
-%shape(1,11).
-%shape(2,10).
+% shape(0,3).
+% shape(1,8).
+% shape(2,10).
+test(1).

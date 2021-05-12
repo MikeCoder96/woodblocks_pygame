@@ -22,7 +22,7 @@ dirname = os.path.split(os.path.abspath(__file__))[0]
 class AI:
 	def __init__(self) -> None:
 		# Instantiate the Handler.
-		self.handler = DesktopHandler(DLV2DesktopService(os.path.join(dirname, "dlv.exe")))
+		self.handler = DesktopHandler(DLV2DesktopService(os.path.join(dirname, "dlv2.exe")))
 
 		# Register input facts to provide to DLV2.
 		ASPMapper.get_instance().register_class(MatrixCellPredicate)
