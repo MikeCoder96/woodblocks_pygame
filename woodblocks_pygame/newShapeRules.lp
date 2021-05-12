@@ -296,9 +296,4 @@ completedColumn(X) 	:- 	column(X),
 :~ #count{ Y: completedRow(Y) } = N, M = 20 - N. [M @ 2, M]
 % ----------------------------------
 
-% Test facts
-% Input shapes
-% shape(0,3).
-% shape(1,8).
-% shape(2,10).
-test(1).
+:- #count{ ID,T,X,Y: inCell(ID,T,X,Y) } = 0.

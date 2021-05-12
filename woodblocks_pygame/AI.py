@@ -1,14 +1,10 @@
 import os
 import re
 
-from base.input_program import InputProgram
-
 from languages.asp.asp_mapper import ASPMapper
 from languages.asp.asp_input_program import ASPInputProgram
-import matrixCellPredicate
 from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
-from base.option_descriptor import OptionDescriptor
 
 from matrixCellPredicate import *
 from shapePredicate import *
@@ -75,12 +71,18 @@ class AI:
 
 		optimalPlacement = []
 
+		optimalAnswerSets = output.get_optimal_answer_sets()
+		print(len(optimalAnswerSets))
+
 		for answerSet in output.get_optimal_answer_sets():
 			print(answerSet.get_weights())
 			for atom in answerSet.get_atoms():
 				# Filter out inCellPredicates. The answer set contains facts, outCellPredicates etc. We are only interested in inCellPredicates.
 				if isinstance(atom, InCellPredicate):
 					optimalPlacement.append((atom.get_index(), atom.get_coordX(), atom.get_coordY()))
+
+		self.inputProgram.clear_all()
+		self.handler.remove_all()
 
 		return optimalPlacement
 
