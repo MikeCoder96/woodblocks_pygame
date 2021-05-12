@@ -6,7 +6,7 @@ from languages.asp.asp_input_program import ASPInputProgram
 from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
 
-from MatrixCellPredicate import *
+from matrixCellPredicate import *
 from shapePredicate import *
 from shapeAggregate import *
 from shapeAggregateBlock import *
@@ -72,7 +72,7 @@ class AI:
 		optimalPlacement = []
 
 		optimalAnswerSets = output.get_optimal_answer_sets()
-		print(len(optimalAnswerSets))
+		print(optimalAnswerSets[0])
 
 		for answerSet in output.get_optimal_answer_sets():
 			print(answerSet.get_weights())

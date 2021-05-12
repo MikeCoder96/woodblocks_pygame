@@ -15,6 +15,9 @@ adjY(ID,X1,Y1,X2,Y2) :- inCell(ID,_,X1,Y1), inCell(ID,_,X2,Y2), Y2 = Y1 + 1, X1 
 % Right X-adjacency. (A cell is considered right-adjacent if it's immediately to the x-right of the target (X2,Y2) cell)
 adjXR(ID,X1,Y1,X2,Y2) :- inCell(ID,_,X1,Y1), inCell(ID,_,X2,Y2), X1 = X2 + 1, Y1 = Y2.
 
+% Answer set should not be null.
+:- #count{ ID,T,X,Y: inCell(ID,T,X,Y) } = 0.
+
 % ----------------------------------
 % Shape type 0: O
 :- shape(ID,0), #count{ X,Y: inCell(ID,0,X,Y) } != 1.
@@ -292,8 +295,11 @@ completedColumn(X) 	:- 	column(X),
 						#count{ Y: matrixCell(X,Y) } = MATRIX_CELLS,
 						CELLS + MATRIX_CELLS = 10.
 
-% Pay at the highest level for the number of non completed rows & columns.
+% Pay at a higher level for the number of non completed rows & columns.
 :~ #count{ Y: completedRow(Y) } = N, M = 20 - N. [M @ 2, M]
 % ----------------------------------
 
-:- #count{ ID,T,X,Y: inCell(ID,T,X,Y) } = 0.
+% ----------------------------------
+% Pay for the number of empty cells around the shape placement
+:~ shape(ID,T), #count{ X,Y: inCell(ID,T,X,Y), X>=X-1, X<=X+1, Y>=Y-1, Y<=Y+1 } = N.
+% ----------------------------------

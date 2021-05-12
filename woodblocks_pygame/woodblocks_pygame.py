@@ -126,6 +126,7 @@ def resetGame():
 def testDLV():
 	global matrix, shapes, activeAggregate
 	var = AI_Solver.getOptimalPlacement(matrix, shapes)
+	print(var)
 	if var != []:
 		for x in var:
 			matrix[int(x[1])][int(x[2])] = True
