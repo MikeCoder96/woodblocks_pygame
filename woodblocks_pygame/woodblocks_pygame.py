@@ -54,7 +54,7 @@ def push_button_hint(button):
 	else:
 		points -= (HINT_PRICE * hint_count)
 		global matrix, shapes, indexSelected
-		var = AI_Solver.getOptimalHint(matrix, shapes[indexSelected])
+		var = AI_Solver.getOptimalPlace(matrix, shapes[indexSelected])
 		if var != []:
 			for x in var:
 				matrix[int(x[1])][int(x[2])] = True
@@ -105,9 +105,13 @@ def placeAggregateOnMatrix(aggregate):
 			y = int(point[1] / 40)
 			matrix[x][y] = True
 
-def printShape(aggregate, x, y):
-	for index in range(0, len(aggregate[1])):
-		screen.blit(blockSelections, [x + aggregate[1][index][0] / 40 * 30, y + aggregate[1][index][1] / 40 * 30])
+def printShape(aggregate, x, y, indexSelected: False):
+	if not indexSelected:
+		for index in range(0, len(aggregate[1])):
+			screen.blit(blockAvailableNotSelected, [x + aggregate[1][index][0] / 40 * 25, y + aggregate[1][index][1] / 40 * 25])
+	else:
+		for index in range(0, len(aggregate[1])):
+			screen.blit(blockAvailableSelected, [x + aggregate[1][index][0] / 40 * 25, y + aggregate[1][index][1] / 40 * 25])
 
 def generateShapesToUse():
 	global shapes
@@ -134,37 +138,13 @@ def resetGame():
 
 def checkEndGame():
 	global matrix, shapes, NO_MOVES_LEFT
-	var = AI_Solver.getOptimalPlacement(matrix, shapes)
-	print(var)
-	if var == []:
-		NO_MOVES_LEFT = True
-		MODE = 0
+	thereisRes = False
+	for x in range(0, 3):
+		var = AI_Solver.getOptimalPlace(matrix, shapes[x])
+		if var != []:
+			thereisRes = True
 
-def useDLV():
-	global matrix, shapes, NO_MOVES_LEFT
-	emptyArray = 0
-	n = 0
-	while True:
-		sleep(0.8)
-		var = AI_Solver.getOptimalHint(matrix, shapes[n])
-		if shapes[n] != None:
-			if var != []:
-				for x in var:
-					matrix[int(x[1])][int(x[2])] = True
-				shapes[n]=[None, None]
-				generateShapesToUse()
-				break
-			else:
-				emptyArray += 1
-
-		if emptyArray == 2:
-			break
-
-		n += 1
-		if n == 3:
-			n = 0
-	
-	if emptyArray == 2:
+	if not thereisRes:
 		NO_MOVES_LEFT = True
 		MODE = 0
 
@@ -178,7 +158,7 @@ matrix = [
 keys = [False, False, False, False]
 playerpos=[20,95]
 MODE = 0 #1 = player, 2 = AI
-points = 100000000
+points = 0
 p_name = ""
 
 pygame.init()
@@ -192,7 +172,7 @@ select2_player = font1.render("or", True, (255, 255, 255))
 select3_player = font1.render("leave it to DLV?", True, (255, 255, 255))
 retry_text = font3.render("Retry??", True, (255, 255, 255))
 indexSelected = 0
-canBeSelected = [[width / 8, 540], [width / 8 * 5, 540]]
+canBeSelected = [[(width / 8) - 10, 535], [(width / 8 * 4) - 65, 535], [(width / 8 * 4) + 85, 535]]
 # Load images
 block_size = 40
 block = pygame.image.load(os.path.join(base_path, "resources", "assets", "quad_1.png"))
@@ -203,6 +183,9 @@ blockSelections = pygame.transform.scale(block, (30, 30))
 
 blockToPlace = pygame.image.load(os.path.join(base_path, "resources", "assets", "quad_2.png"))
 blockToPlace = pygame.transform.scale(blockToPlace, (block_size, block_size))
+
+blockAvailableSelected = pygame.transform.scale(blockToPlace, (25, 25))
+blockAvailableNotSelected = pygame.transform.scale(blockSelections, (25, 25))
 
 blockNotPlacable = pygame.image.load(os.path.join(base_path, "resources", "assets", "quad_3.png"))
 blockNotPlacable = pygame.transform.scale(blockNotPlacable, (block_size, block_size))
@@ -250,11 +233,7 @@ generateShapesToUse()
 
 originalShapes = copy.deepcopy(shapes)
 
-#print(ai.getOptimalPlacement(matrix, ShapeAggregate(shapes, 0, block_size)))
-
 while True:
-	if NO_MOVES_LEFT:
-		MODE = 0
 	player = font2.render(p_name, True, (0, 128, 0))
 	activeAggregate = shapes[indexSelected]
 	score = font2.render(str(points), True, (0, 128, 0))
@@ -263,58 +242,10 @@ while True:
 	# Draw the screen elements
 	screen.blit(background, (0,0))
 
-	columnToRemove = []
-	rowToRemove = []
-
-	# Check for completed row and column and print
-	for x in range(len(matrix)):
-		for y in range(len(matrix[x])):
-			if matrix[x][y]:
-				screen.blit(block, (20 + (40 * x), (95 + (40 * y))))
-
-	for column in range(len(matrix)):
-		isColumnCompleted = True
-		for row in range(len(matrix)):
-			if matrix[column][row] == False:
-				isColumnCompleted = False
-		if isColumnCompleted:
-			columnToRemove.append(column)
-
-	for row in range(len(matrix)):
-		isRowCompleted = True
-		for column in range(len(matrix)):
-			if matrix[column][row] == False:
-				isRowCompleted = False
-		if isRowCompleted:
-			rowToRemove.append(row)
-
-	for column in columnToRemove:
-		for row in range(len(matrix)): 
-			matrix[column][row] = False
-		points += 10
-
-	for row in rowToRemove:
-		for column in range(len(matrix)):
-			matrix[column][row] = False
-		points += 10
-
-
-	rowToRemove.clear()
-	columnToRemove.clear()
-
-	if MODE > 0:
-		# Stampa blocchi player
-		if activeAggregate[1] != None:
-			for point in activeAggregate[1]:
-				p = [point[0] + 20, point[1] + 95]
-				if (aggregateIsPlaceable(activeAggregate[1])):
-					screen.blit(blockToPlace, p)
-				else:
-					screen.blit(blockNotPlacable, p)
-		
+	if MODE == 1:	
 		screen.blit(hint_button["image"], hint_button["rect"])
-		screen.blit(player, (87, 20))
-		screen.blit(score, (270, 20))
+	screen.blit(player, (87, 20))
+	screen.blit(score, (270, 20))
 
 
 	if MODE == 0:
@@ -334,13 +265,46 @@ while True:
 	if MODE > 0:
 		placeToUse = 0
 		for i in range(3):
-			if (i == indexSelected or shapes[i] == None):
-				continue
-			printShape(originalShapes[i], canBeSelected[placeToUse][0], canBeSelected[placeToUse][1])
+			if i == indexSelected and MODE == 1:
+				printShape(originalShapes[i], canBeSelected[placeToUse][0], canBeSelected[placeToUse][1], True)
+			else:
+				printShape(originalShapes[i], canBeSelected[placeToUse][0], canBeSelected[placeToUse][1], False)
 			placeToUse += 1
 	
+	if MODE == 2:
+		emptyArray = 0
+		n = 0
+		while True:
+			sleep(0.8)
+			var = AI_Solver.getOptimalPlace(matrix, shapes[n])
+			if shapes[n] != None:
+				if var != []:
+					added = False
+					for x in var:
+						if not added:
+							points += len(shapes[int(x[0])])
+							added = True
+							
+						matrix[int(x[1])][int(x[2])] = True
+
+					shapes[n]=[None, None]
+					generateShapesToUse()
+					break
+				else:
+					emptyArray += 1
+
+			if emptyArray == 2:
+				break
+
+			n += 1
+			if n == 3:
+				n = 0
+		
+		if emptyArray == 2:
+			NO_MOVES_LEFT = True
+			MODE = 0
+
 	# Update the screen
-	pygame.display.flip()
 	for event in pygame.event.get():
 		
 		if event.type == pygame.MOUSEBUTTONDOWN:
@@ -367,8 +331,6 @@ while True:
 					keys[3]=True
 				elif event.key==pygame.K_h:
 					push_button_hint(None)
-				elif event.key==pygame.K_p:
-					useDLV()
 				elif event.key==pygame.K_TAB:
 					while True:
 						indexSelected += 1
@@ -391,7 +353,7 @@ while True:
 								indexSelected = 0
 							if shapes[indexSelected][1] != None:
 								break
-						#checkEndGame()
+						checkEndGame()
 
 
 			if event.type == pygame.KEYUP:
@@ -428,9 +390,52 @@ while True:
 					if (activeAggregate[1] != None):
 						for i in range(0, len(activeAggregate[1])):
 							activeAggregate[1][i][0] += 40
-
-		if MODE == 2:
-			sleep(0.15)
-			useDLV()
-			sleep(0.15)
 			
+			
+	columnToRemove = []
+	rowToRemove = []
+
+	for column in range(len(matrix)):
+		isColumnCompleted = True
+		for row in range(len(matrix)):
+			if matrix[column][row] == False:
+				isColumnCompleted = False
+		if isColumnCompleted:
+			columnToRemove.append(column)
+
+	for row in range(len(matrix)):
+		isRowCompleted = True
+		for column in range(len(matrix)):
+			if matrix[column][row] == False:
+				isRowCompleted = False
+		if isRowCompleted:
+			rowToRemove.append(row)
+
+	for column in columnToRemove:
+		for row in range(len(matrix)): 
+			matrix[column][row] = False
+		points += 10
+
+	for row in rowToRemove:
+		for column in range(len(matrix)):
+			matrix[column][row] = False
+		points += 10
+
+
+	rowToRemove.clear()
+	columnToRemove.clear()
+	
+	for x in range(len(matrix)):
+		for y in range(len(matrix[x])):
+			if matrix[x][y]:
+				screen.blit(block, (20 + (40 * x), (95 + (40 * y))))
+
+	# Stampa blocchi player
+	if activeAggregate[1] != None and MODE == 1:
+		for point in activeAggregate[1]:
+			p = [point[0] + 20, point[1] + 95]
+			if (aggregateIsPlaceable(activeAggregate[1])):
+				screen.blit(blockToPlace, p)
+			else:
+				screen.blit(blockNotPlacable, p)
+	pygame.display.flip()

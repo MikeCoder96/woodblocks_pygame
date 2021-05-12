@@ -6,7 +6,7 @@ from languages.asp.asp_input_program import ASPInputProgram
 from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
 
-from matrixCellPredicate import *
+from MatrixCellPredicate import *
 from shapePredicate import *
 from shapeAggregate import *
 from shapeAggregateBlock import *
@@ -18,7 +18,7 @@ dirname = os.path.split(os.path.abspath(__file__))[0]
 class AI:
 	def __init__(self) -> None:
 		# Instantiate the Handler.
-		self.handler = DesktopHandler(DLV2DesktopService(os.path.join(dirname, "dlv2.exe")))
+		self.handler = DesktopHandler(DLV2DesktopService(os.path.join(dirname, "dlv2")))
 
 		# Register input facts to provide to DLV2.
 		ASPMapper.get_instance().register_class(MatrixCellPredicate)
@@ -37,7 +37,7 @@ class AI:
 		# Add rules to the program
 		self._addRules()
 
-	def getOptimalHint(self, matrix: list, shapes: list):
+	def getOptimalPlace(self, matrix: list, shapes: list):
 		self.instantiateProgram()
 
 		matrixPredicates = []
@@ -65,10 +65,10 @@ class AI:
 		optimalPlacement = []
 
 		optimalAnswerSets = output.get_optimal_answer_sets()
-		print(len(optimalAnswerSets))
+		#print(len(optimalAnswerSets))
 
 		for answerSet in output.get_optimal_answer_sets():
-			print(answerSet.get_weights())
+			#print(answerSet.get_weights())
 			for atom in answerSet.get_atoms():
 				# Filter out inCellPredicates. The answer set contains facts, outCellPredicates etc. We are only interested in inCellPredicates.
 				if isinstance(atom, InCellPredicate):
