@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>woodblocks_pygame</Name>
     <RootNamespace>woodblocks_pygame</RootNamespace>
+    <InterpreterId>MSBuild|Python 3.9 (64-bit)|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,6 +37,17 @@
     <Content Include="logicProgram.lp" />
     <Content Include="newShapeRules.lp" />
     <Content Include="test.lp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="Python 3.9 (64-bit)\">
+      <Id>Python 3.9 (64-bit)</Id>
+      <Version>3.9</Version>
+      <Description>Python 3.9 (64-bit) (Python 3.9 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

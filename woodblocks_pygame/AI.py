@@ -37,6 +37,48 @@ class AI:
 		# Add rules to the program
 		self._addRules()
 
+	def getOptimalHint(self, matrix: list, shapes: list):
+		self.instantiateProgram()
+
+		matrixPredicates = []
+		for i in range(len(matrix)):
+			for j in range(len(matrix)):
+				if (matrix[i][j]):
+					matrixPredicates.append(MatrixCellPredicate(i, j))
+
+		shapePredicate = ShapePredicate(0, shapes[0])
+
+		#DEBUG
+		#self.printArray(matrixPredicates)
+		#self.printArray(shapePredicate)
+
+		# Add predicates to the program
+		self.inputProgram.add_objects_input(matrixPredicates)
+		self.inputProgram.add_object_input(shapePredicate)
+
+		# Add program to the handler
+		self.handler.add_program(self.inputProgram)
+
+		# Spawn DLV synchronously and get the output
+		output = self.handler.start_sync()
+
+		optimalPlacement = []
+
+		optimalAnswerSets = output.get_optimal_answer_sets()
+		print(len(optimalAnswerSets))
+
+		for answerSet in output.get_optimal_answer_sets():
+			print(answerSet.get_weights())
+			for atom in answerSet.get_atoms():
+				# Filter out inCellPredicates. The answer set contains facts, outCellPredicates etc. We are only interested in inCellPredicates.
+				if isinstance(atom, InCellPredicate):
+					optimalPlacement.append((atom.get_index(), atom.get_coordX(), atom.get_coordY()))
+
+		self.inputProgram.clear_all()
+		self.handler.remove_all()
+
+		return optimalPlacement
+
 	def getOptimalPlacement(self, matrix: list, shapes: list):
 		"""
 		Returns the optimal placement for a single `ShapeAggregate`, given the input matrix status.

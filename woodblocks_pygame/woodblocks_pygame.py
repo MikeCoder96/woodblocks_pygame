@@ -52,7 +52,13 @@ def push_button_hint(button):
 		print("no points, no hints")
 	else:
 		points -= (HINT_PRICE * hint_count)
-		#ai.useHint() #TODO: Add hint func in AI
+		global matrix, shapes, indexSelected
+		var = AI_Solver.getOptimalHint(matrix, shapes[indexSelected])
+		if var != []:
+			for x in var:
+				matrix[int(x[1])][int(x[2])] = True
+			shapes[indexSelected]=[None, None]
+			generateShapesToUse()
 #############
 
 
@@ -142,7 +148,7 @@ matrix = [
 keys = [False, False, False, False]
 playerpos=[20,95]
 MODE = 0 #1 = player, 2 = AI
-points = 0
+points = 100000000
 p_name = ""
 
 pygame.init()
@@ -329,6 +335,8 @@ while True:
 					keys[2]=True
 				elif event.key==pygame.K_d or event.key==pygame.K_RIGHT:
 					keys[3]=True
+				elif event.key==pygame.K_h:
+					push_button_hint(None)
 				elif event.key==pygame.K_p:
 					testDLV()
 				elif event.key==pygame.K_TAB:
