@@ -98,8 +98,8 @@ class AI:
 		for x in range(len(shapes)):
 			shapePredicate.append(ShapePredicate(x, shapes[x][0]))
 
-		self.printArray(matrixPredicates)
-		self.printArray(shapePredicate)
+		#self.printArray(matrixPredicates)
+		#self.printArray(shapePredicate)
 
 		# Add predicates to the program
 		self.inputProgram.add_objects_input(matrixPredicates)
@@ -107,6 +107,7 @@ class AI:
 
 		# Add program to the handler
 		self.handler.add_program(self.inputProgram)
+		print(self.inputProgram)
 
 		# Spawn DLV synchronously and get the output
 		output = self.handler.start_sync()
@@ -114,10 +115,9 @@ class AI:
 		optimalPlacement = []
 
 		optimalAnswerSets = output.get_optimal_answer_sets()
-		print(optimalAnswerSets[0])
 
 		for answerSet in output.get_optimal_answer_sets():
-			print(answerSet.get_weights())
+			#print(answerSet.get_weights())
 			for atom in answerSet.get_atoms():
 				# Filter out inCellPredicates. The answer set contains facts, outCellPredicates etc. We are only interested in inCellPredicates.
 				if isinstance(atom, InCellPredicate):

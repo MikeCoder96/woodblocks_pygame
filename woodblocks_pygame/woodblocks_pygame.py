@@ -6,6 +6,7 @@ from random import randint
 from pygame.locals import *
 import shapes_template as toPlace
 from AI import *
+from time import sleep
 from shapeAggregate import *
 
 activeAggregate = None
@@ -65,8 +66,11 @@ def push_button_hint(button):
 # An aggregate is a list of individual (x,y) points representing a shape.
 # Each (x,y) point takes into account block_size.
 def makeAggregate(idx):
+	if idx == 18:
+		return
+		
 	global shapes
-	generated_index = randint(0, 18)
+	generated_index = randint(0, 17)
 	shape = toPlace.state[generated_index]
 	shapes[idx][0] = generated_index
 	blocksAggregate = []
@@ -117,8 +121,8 @@ def generateShapesToUse():
 def resetGame():
 	# Initialize the game
 	global shapes, originalShapes, matrix, playerpos, MODE, points, p_name
-	shapes=[None, None, None]
-	originalShapes=[None, None, None]
+	shapes=[[None, None], [None, None], [None, None]]
+	originalShapes=[[None, None], [None, None], [None, None]]
 	matrix = [
 		[False for _ in range(0, 10)]
 	   for _ in range(0,10)
@@ -128,17 +132,43 @@ def resetGame():
 	p_name = ""
 	generateShapesToUse()
 
-
-def testDLV():
-	global matrix, shapes, activeAggregate
+def checkEndGame():
+	global matrix, shapes, NO_MOVES_LEFT
 	var = AI_Solver.getOptimalPlacement(matrix, shapes)
 	print(var)
-	if var != []:
-		for x in var:
-			matrix[int(x[1])][int(x[2])] = True
-		shapes=[[None, None], [None, None], [None, None]]
-		generateShapesToUse()
+	if var == []:
+		NO_MOVES_LEFT = True
+		MODE = 0
 
+def useDLV():
+	global matrix, shapes, NO_MOVES_LEFT
+	emptyArray = 0
+	n = 0
+	while True:
+		sleep(0.8)
+		var = AI_Solver.getOptimalHint(matrix, shapes[n])
+		if shapes[n] != None:
+			if var != []:
+				for x in var:
+					matrix[int(x[1])][int(x[2])] = True
+				shapes[n]=[None, None]
+				generateShapesToUse()
+				break
+			else:
+				emptyArray += 1
+
+		if emptyArray == 2:
+			break
+
+		n += 1
+		if n == 3:
+			n = 0
+	
+	if emptyArray == 2:
+		NO_MOVES_LEFT = True
+		MODE = 0
+
+aiPlaced = [True, True, True]
 shapes=[[None, None], [None, None], [None, None]]
 originalShapes=[[None, None], [None, None], [None, None]]
 matrix = [
@@ -338,7 +368,7 @@ while True:
 				elif event.key==pygame.K_h:
 					push_button_hint(None)
 				elif event.key==pygame.K_p:
-					testDLV()
+					useDLV()
 				elif event.key==pygame.K_TAB:
 					while True:
 						indexSelected += 1
@@ -361,6 +391,7 @@ while True:
 								indexSelected = 0
 							if shapes[indexSelected][1] != None:
 								break
+						#checkEndGame()
 
 
 			if event.type == pygame.KEYUP:
@@ -398,9 +429,8 @@ while True:
 						for i in range(0, len(activeAggregate[1])):
 							activeAggregate[1][i][0] += 40
 
-		#if ai.endGame():
-		#    global MODE
-		#    global NO_MOVES_LEFT
-		#    NO_MOVES_LEFT = True
-		#    MODE = 0
+		if MODE == 2:
+			sleep(0.15)
+			useDLV()
+			sleep(0.15)
 			

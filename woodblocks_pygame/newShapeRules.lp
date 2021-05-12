@@ -15,9 +15,6 @@ adjY(ID,X1,Y1,X2,Y2) :- inCell(ID,_,X1,Y1), inCell(ID,_,X2,Y2), Y2 = Y1 + 1, X1 
 % Right X-adjacency. (A cell is considered right-adjacent if it's immediately to the x-right of the target (X2,Y2) cell)
 adjXR(ID,X1,Y1,X2,Y2) :- inCell(ID,_,X1,Y1), inCell(ID,_,X2,Y2), X1 = X2 + 1, Y1 = Y2.
 
-% Answer set should not be null.
-:- #count{ ID,T,X,Y: inCell(ID,T,X,Y) } = 0.
-
 % ----------------------------------
 % Shape type 0: O
 :- shape(ID,0), #count{ X,Y: inCell(ID,0,X,Y) } != 1.
@@ -295,6 +292,14 @@ completedColumn(X) 	:- 	column(X),
 						#count{ Y: matrixCell(X,Y) } = MATRIX_CELLS,
 						CELLS + MATRIX_CELLS = 10.
 
-% Pay at a higher level for the number of non completed rows & columns.
-:~ #count{ Y: completedRow(Y) } = N, M = 20 - N. [M @ 2, M]
+% Pay at the highest level for the number of non completed rows & columns.
+:~ #count{ Y: completedRow(Y) } = N, M = 20 - N. [M @ 3, M]
 % ----------------------------------
+
+% ----------------------------------
+% The more line completion is neared, the less the cost.
+:~ row(Y), #count{ X: inCell(_,_,X,Y) } = A, #count{ X: matrixCell(_,_,X,Y) } = B, N = 10 - A - B. [N @ 2, Y]
+:~ column(X), #count{ Y: inCell(_,_,X,Y) } = A, #count{ Y: matrixCell(_,_,X,Y) } = B, N = 10 - A - B. [N @ 2, X]
+% ----------------------------------
+
+:- #count{ ID,T,X,Y: inCell(ID,T,X,Y) } = 0.
