@@ -6,7 +6,7 @@ from languages.asp.asp_input_program import ASPInputProgram
 from platforms.desktop.desktop_handler import DesktopHandler
 from specializations.dlv2.desktop.dlv2_desktop_service import DLV2DesktopService
 
-from MatrixCellPredicate import *
+from matrixCellPredicate import *
 from shapePredicate import *
 from shapeAggregate import *
 from shapeAggregateBlock import *
@@ -18,7 +18,7 @@ dirname = os.path.split(os.path.abspath(__file__))[0]
 class AI:
 	def __init__(self) -> None:
 		# Instantiate the Handler.
-		self.handler = DesktopHandler(DLV2DesktopService(os.path.join(dirname, "dlv2")))
+		self.handler = DesktopHandler(DLV2DesktopService(os.path.join(dirname, "dlv2.exe")))
 
 		# Register input facts to provide to DLV2.
 		ASPMapper.get_instance().register_class(MatrixCellPredicate)
