@@ -280,57 +280,36 @@ s18(X1,X2,X3,X4,X5,X6,X7,X8,X9) :- 	shape(ID,18),
 
 % ----------------------------------
 % Input shapes cannot overlap.
-:- inCell(ID1,T1,X1,Y1), inCell(ID2,T2,X2,Y2), ID1 != ID2, X1 = X2, Y1 = Y2.
-% ----------------------------------
-
-% ----------------------------------
-% Prefer placing each shape on corners
-%:~ shape(ID,T), #sum{ Xb: inCell(ID,T,X,Y), &abs(X-5;Xa), Xb = 10-Xa } = C. [C @ 1, ID,T]
-%:~ shape(ID,T), #sum{ Yb: inCell(ID,T,X,Y), &abs(Y-5;Ya), Yb = 10-Ya } = C. [C @ 1, ID,T]
+:- inCell(ID1,T1,X1,Y1), inCell(ID2,T2,X2,Y2), ID1 != ID2, T1 != T2, X1 = X2, Y1 = Y2.
 % ----------------------------------
 
 % Controlliamo se una shape e su una cornice
-isOnCorner(ID) :- shape(ID, _), inCell(ID,_, X, Y), maximum(X).
-isOnCorner(ID) :- shape(ID, _), inCell(ID,_, X, Y), maximum(Y).
-isOnCorner(ID) :- shape(ID, _), inCell(ID,_, X, Y), minimum(X).
-isOnCorner(ID) :- shape(ID, _), inCell(ID,_, X, Y), minimum(Y).
+isOnCorner(ID) :- shape(ID,_), inCell(ID,_,X,Y), maximum(X).
+isOnCorner(ID) :- shape(ID,_), inCell(ID,_,X,Y), maximum(Y).
+isOnCorner(ID) :- shape(ID,_), inCell(ID,_,X,Y), minimum(X).
+isOnCorner(ID) :- shape(ID,_), inCell(ID,_,X,Y), minimum(Y).
 
-% Altrimenti paga se non e su cornice
-:~ shape(ID, T), not isOnCorner(ID). [1@1, ID]
+% Pay at the lowest level for every shape not placed around the outer layers (prefer not placing the shape towards the matrix's center)
+:~ shape(ID,T), not isOnCorner(ID). [1@1, ID]
+
+% Pay the least for placing the shapes near the highest number of adjacent blocks.
+:~ #count{ X1,X2,Y1,Y2: adjacent(X1,Y1,X2,Y2) } = N, M = 50 - N. [M @ 2, M]
 
 % ----------------------------------
 % The objective is clearing a line!
 row(0..9).
 column(0..9).
-%completedRow(Y) 	:- 	row(Y), 
-%						#count{ X: inCell(_,_,X,Y) } = CELLS, 
-%						#count{ X: matrixCell(X,Y) } = MATRIX_CELLS, 
-%						CELLS + MATRIX_CELLS = 10. % "Y" because it's constant with respect to a row.
-%completedColumn(X) 	:- 	column(X), 
-%						#count{ Y: inCell(_,_,X,Y) } = CELLS,
-%						#count{ Y: matrixCell(X,Y) } = MATRIX_CELLS,
-%						CELLS + MATRIX_CELLS = 10.
-%
-%% Pay at the highest level for the number of non completed rows & columns.
-%:~ #count{ Y: completedRow(Y) } = N, M = 20 - N. [M @ 3, M]
-%% ----------------------------------
-%
-%% ----------------------------------
-%% The more line completion is neared, the less the cost.
-%:~ row(Y), #count{ X: inCell(_,_,X,Y) } = A, #count{ X: matrixCell(_,_,X,Y) } = B, N = 10 - A - B. [N @ 2, Y]
-%:~ column(X), #count{ Y: inCell(_,_,X,Y) } = A, #count{ Y: matrixCell(_,_,X,Y) } = B, N = 10 - A - B. [N @ 2, X]
-%% ----------------------------------
+completedRow(Y) 	:- 	row(Y), 
+						#count{ X: inCell(_,_,X,Y) } = CELLS, 
+						#count{ X: matrixCell(X,Y) } = MATRIX_CELLS, 
+						CELLS + MATRIX_CELLS = 10. % "Y" because it's constant with respect to a row.
+completedColumn(X) 	:- 	column(X), 
+						#count{ Y: inCell(_,_,X,Y) } = CELLS,
+						#count{ Y: matrixCell(X,Y) } = MATRIX_CELLS,
+						CELLS + MATRIX_CELLS = 10.
 
-% Piazza i blocchi nel modo piu adiacente possibile 
-adjacentShape(ID) :- shape(ID, _), inCell(ID, _, X1, Y1), inCell(ID2, _, X2, Y2), ID != ID2, adjacent(X1,Y1,X2,Y2).
-:~ shape(ID, _), not adjacentShape(ID). [1@2, ID]
+% Pay at the highest level for the number of non completed rows & columns.
+:~ #count{ Y: completedRow(Y) } = N, M = 20 - N. [M @ 3, M]
+% ----------------------------------
 
 :- #count{ ID,T,X,Y: inCell(ID,T,X,Y) } = 0.
-
-% presa in input la matrice bisognerebbe
-% capire quale il blocco piu conveniente da poter dare in output al game (tra i 3 blocchi)
-% fai un count di quanti elementi vuoti ci sono sulla matrice e controlla ila figura adiacente
-
-% shape(0,3).
-% shape(1,5).
-% shape(2,15).

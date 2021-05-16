@@ -44,6 +44,7 @@ def push_button_dlv(button):
 def push_button_retry(button):
 	global MODE
 	global NO_MOVES_LEFT
+	resetGame()
 	NO_MOVES_LEFT = False
 	MODE = 0
 
@@ -60,6 +61,8 @@ def push_button_hint(button):
 				matrix[int(x[1])][int(x[2])] = True
 			shapes[indexSelected]=[None, None]
 			generateShapesToUse()
+		else:
+			print("empty")
 #############
 
 
@@ -207,8 +210,10 @@ player_image = pygame.image.load(os.path.join(base_path, "resources", "assets", 
 player_image = pygame.transform.scale(player_image, (180, 100))
 
 retry_button = {}
+retry_button_mini = {}
 retry_image = pygame.image.load(os.path.join(base_path, "resources", "assets", "retry_btn.png"))
 retry_image = pygame.transform.scale(retry_image, (180, 100))
+retry_image_mini = pygame.transform.scale(retry_image, (50, 50))
 
 questionBox = pygame.image.load(os.path.join(base_path, "resources", "assets", "questionbox.png"))
 questionBox = pygame.transform.scale(questionBox, (400, 430))
@@ -217,6 +222,7 @@ create_button(dlv_button, dlv_image, ((width / 2) + 15, (height / 2) - 10), push
 create_button(player_button, player_image, ((width / 2) - 190, (height / 2) - 10), push_button_player)
 create_button(hint_button, hint_image, (370, 10), push_button_hint)
 create_button(retry_button, retry_image, ((width / 2) - 90, (height / 2) - 10), push_button_retry)
+create_button(retry_button_mini, retry_image_mini, (5, 5), push_button_retry)
 
 def createShapeImage(aggregate):
 	shapeImage = block
@@ -244,23 +250,20 @@ while True:
 
 	if MODE == 1:	
 		screen.blit(hint_button["image"], hint_button["rect"])
+		screen.blit(retry_button_mini["image"], retry_button_mini["rect"])
 	screen.blit(player, (87, 20))
 	screen.blit(score, (270, 20))
 
 
 	if MODE == 0:
 		#Show player mode        
-		screen.blit(questionBox, ((width / 2) - 200, (height / 2) - 253))
 		if not NO_MOVES_LEFT:
+			screen.blit(questionBox, ((width / 2) - 200, (height / 2) - 253))
 			screen.blit(select1_player, ((width / 2) - 150, (height / 2) - 180))
 			screen.blit(select2_player, ((width / 2) - 150, (height / 2) - 135))
 			screen.blit(select3_player, ((width / 2) - 150, (height / 2) - 90))
 			screen.blit(player_button["image"], player_button["rect"])
 			screen.blit(dlv_button["image"], dlv_button["rect"])
-		else:
-			resetGame()
-			screen.blit(retry_text, ((width / 2) - 90, (height / 2) - 130))
-			screen.blit(retry_button["image"], retry_button["rect"])
 
 	if MODE > 0:
 		placeToUse = 0
@@ -273,12 +276,12 @@ while True:
 	
 	if MODE == 2:
 		emptyArray = 0
-		n = 0
-		while True:
+		for n in range(0,2):
 			sleep(0.8)
 			var = AI_Solver.getOptimalPlace(matrix, shapes[n])
 			if shapes[n] != None:
 				if var != []:
+					print(var)
 					added = False
 					for x in var:
 						if not added:
@@ -286,19 +289,15 @@ while True:
 							added = True
 							
 						matrix[int(x[1])][int(x[2])] = True
-
+		
 					shapes[n]=[None, None]
 					generateShapesToUse()
 					break
 				else:
 					emptyArray += 1
-
-			if emptyArray == 2:
+		
+			if emptyArray == 3:
 				break
-
-			n += 1
-			if n == 3:
-				n = 0
 		
 		if emptyArray == 2:
 			NO_MOVES_LEFT = True
@@ -314,6 +313,7 @@ while True:
 				button_on_click(hint_button, event)
 				button_on_click(player_button, event)
 				button_on_click(dlv_button, event)
+				button_on_click(retry_button_mini, event)
 
 		if event.type==pygame.QUIT:
 			pygame.quit() 
@@ -438,4 +438,9 @@ while True:
 				screen.blit(blockToPlace, p)
 			else:
 				screen.blit(blockNotPlacable, p)
+
+	if NO_MOVES_LEFT:
+		screen.blit(retry_text, ((width / 2) - 90, (height / 2) - 130))
+		screen.blit(retry_button["image"], retry_button["rect"])
+
 	pygame.display.flip()

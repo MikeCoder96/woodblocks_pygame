@@ -59,6 +59,8 @@ class AI:
 		# Add program to the handler
 		self.handler.add_program(self.inputProgram)
 
+		print(self.inputProgram)
+
 		# Spawn DLV synchronously and get the output
 		output = self.handler.start_sync()
 
